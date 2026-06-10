@@ -4,22 +4,14 @@ import { join, relative } from "node:path";
 import { tmpdir } from "node:os";
 import { execSync } from "node:child_process";
 
-interface TemplateFetcherOptions {
-  templateDir?: string;
-  remoteUrl?: string;
-}
+const TEMPLATE_REPO = "cybercore-ma/template-amal";
+const DEFAULT_TEMPLATE_URL = `https://api.github.com/repos/${TEMPLATE_REPO}/tarball`;
 
-const DEFAULT_TEMPLATE_REPO =
-  "https://api.github.com/repos/cybercore-ma/template-amal/tarball/v0.1.0";
+export async function fetchTemplates(version?: string): Promise<TemplateMap> {
+  const url = version
+    ? `${DEFAULT_TEMPLATE_URL}/${version}`
+    : DEFAULT_TEMPLATE_URL;
 
-export async function fetchTemplates(
-  options: TemplateFetcherOptions = {}
-): Promise<TemplateMap> {
-  if (options.templateDir) {
-    return loadLocalTemplates(options.templateDir);
-  }
-
-  const url = options.remoteUrl || DEFAULT_TEMPLATE_REPO;
   return fetchRemoteTemplates(url);
 }
 
@@ -48,15 +40,13 @@ async function fetchRemoteTemplates(url: string): Promise<TemplateMap> {
   const tmpDir = mkdtempSync(join(tmpdir(), "cyber-stack-templates-"));
 
   try {
-    // Download tarball via GitHub API
     const response = await fetch(url, {
       headers: {
-        Accept: "application/vnd.github.v3.raw",
-        // Optional: add GITHUB_TOKEN env var for private repos
         ...(process.env.GITHUB_TOKEN
           ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
           : {}),
       },
+      redirect: "follow",
     });
 
     if (!response.ok) {
@@ -68,14 +58,10 @@ async function fetchRemoteTemplates(url: string): Promise<TemplateMap> {
     const buffer = Buffer.from(await response.arrayBuffer());
     const tarballPath = join(tmpDir, "template.tar.gz");
 
-    // Write tarball to temp file
     const { writeFileSync } = await import("node:fs");
     writeFileSync(tarballPath, buffer);
-
-    // Extract tarball
     execSync(`tar -xzf "${tarballPath}" -C "${tmpDir}"`, { stdio: "ignore" });
 
-    // Find the extracted directory (GitHub tarballs have a hash prefix)
     const entries = readdirSync(tmpDir);
     const extractedDir = entries.find(
       (e) => e.startsWith("cybercore-ma-template-amal-") || e === "templates"
@@ -88,19 +74,16 @@ async function fetchRemoteTemplates(url: string): Promise<TemplateMap> {
     const templateBase = join(tmpDir, extractedDir);
     const templatesDir = join(templateBase, "templates");
 
-    // Check if templates directory exists at the expected location
     if (existsSync(templatesDir)) {
       return loadLocalTemplates(templatesDir);
     }
 
-    // Fallback: the extracted dir itself might be the template root
     return loadLocalTemplates(templateBase);
   } finally {
-    // Cleanup temp dir
     try {
       rmSync(tmpDir, { recursive: true, force: true });
     } catch {
-      // Best effort cleanup
+      // best effort cleanup
     }
   }
 }

@@ -1,6 +1,0 @@
-node_modules/
-dist/
-styled-system/
-*.tsbuildinfo
-.env
-.env.*
