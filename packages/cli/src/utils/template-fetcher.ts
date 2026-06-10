@@ -40,26 +40,36 @@ async function fetchRemoteTemplates(url: string): Promise<TemplateMap> {
   const tmpDir = mkdtempSync(join(tmpdir(), "cyber-stack-templates-"));
 
   try {
-    const response = await fetch(url, {
-      headers: {
-        ...(process.env.GITHUB_TOKEN
-          ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
-          : {}),
-      },
-      redirect: "follow",
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch templates: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const buffer = Buffer.from(await response.arrayBuffer());
     const tarballPath = join(tmpDir, "template.tar.gz");
 
-    const { writeFileSync } = await import("node:fs");
-    writeFileSync(tarballPath, buffer);
+    // Try gh CLI first (handles auth automatically), fall back to direct fetch with token
+    try {
+      execSync(
+        `gh api repos/cybercore-ma/template-amal/tarball > "${tarballPath}"`,
+        { stdio: "pipe" }
+      );
+    } catch {
+      // Fallback: direct fetch with optional GITHUB_TOKEN
+      const response = await fetch(url, {
+        headers: {
+          ...(process.env.GITHUB_TOKEN
+            ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
+            : {}),
+        },
+        redirect: "follow",
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch templates: ${response.status} ${response.statusText}`
+        );
+      }
+
+      const buffer = Buffer.from(await response.arrayBuffer());
+      const { writeFileSync } = await import("node:fs");
+      writeFileSync(tarballPath, buffer);
+    }
+
     execSync(`tar -xzf "${tarballPath}" -C "${tmpDir}"`, { stdio: "ignore" });
 
     const entries = readdirSync(tmpDir);
