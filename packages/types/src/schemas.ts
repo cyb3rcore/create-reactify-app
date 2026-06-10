@@ -2,19 +2,19 @@ import { z } from "zod";
 
 export const ProjectNameSchema = z.string().min(1).max(255);
 
-export const RuntimeSchema = z.enum(["bun", "node"]);
+export const RuntimeSchema = z.enum(["bun", "node"] as const);
 
-export const APISchema = z.enum(["trpc", "orpc", "none"]);
+export const APISchema = z.enum(["trpc", "orpc", "none"] as const);
 
-export const AuthSchema = z.enum(["better-auth", "none"]);
+export const AuthSchema = z.enum(["better-auth", "none"] as const);
 
-export const DatabaseSchema = z.enum(["sqlite", "postgres", "none"]);
+export const DatabaseSchema = z.enum(["sqlite", "postgres", "none"] as const);
 
-export const ORMSchema = z.enum(["drizzle", "none"]);
+export const ORMSchema = z.enum(["drizzle", "none"] as const);
 
-export const PackageManagerSchema = z.enum(["npm", "pnpm", "bun"]);
+export const PackageManagerSchema = z.enum(["npm", "pnpm", "bun"] as const);
 
-export const AddonSchema = z.enum(["mcp", "skills", "vite-plus"]);
+export const AddonSchema = z.enum(["mcp", "skills", "vite-plus"] as const);
 
 export const AddonsSchema = z.array(AddonSchema);
 
