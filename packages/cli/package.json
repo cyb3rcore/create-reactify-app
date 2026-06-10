@@ -1,0 +1,39 @@
+{
+  "name": "create-cyber-stack",
+  "version": "0.1.0",
+  "description": "Scaffold SSR web applications with the Amal stack",
+  "type": "module",
+  "bin": {
+    "create-cyber-stack": "./dist/cli.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./cli": {
+      "import": "./dist/cli.mjs"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsdown --config build.config.ts",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cyber-stack/template-generator": "workspace:*",
+    "@cyber-stack/types": "workspace:*",
+    "@clack/prompts": "^1.4.0",
+    "citty": "^0.2.0",
+    "consola": "^3.4.2",
+    "handlebars": "^4.7.9",
+    "picocolors": "^1.1.1",
+    "zod": "^4.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsdown": "^0.22.0",
+    "typescript": "^5.9.0"
+  }
+}
