@@ -1,0 +1,14 @@
+import { Spinner } from './spinner'
+
+interface LoaderProps {
+  text?: string
+}
+
+export function Loader({ text = 'Loading...' }: LoaderProps) {
+  return (
+    <div className="loader">
+      <Spinner />
+      <span>{text}</span>
+    </div>
+  )
+}

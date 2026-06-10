@@ -1,0 +1,41 @@
+import { defineRecipe } from '@pandacss/dev'
+
+export const button = defineRecipe({
+  name: 'button',
+  jsx: ['Button'],
+  base: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 'md',
+    fontWeight: 'medium',
+    cursor: 'pointer',
+    transition: 'all 0.15s',
+  },
+  variants: {
+    variant: {
+      solid: {
+        bg: 'primary',
+        color: 'primary-fg',
+        _hover: { opacity: 0.9 },
+      },
+      outline: {
+        border: '1px solid',
+        borderColor: 'border.default',
+        _hover: { bg: 'bg.muted' },
+      },
+      ghost: {
+        _hover: { bg: 'bg.muted' },
+      },
+    },
+    size: {
+      sm: { px: 3, py: 1.5, textStyle: 'sm' },
+      md: { px: 4, py: 2, textStyle: 'sm' },
+      lg: { px: 6, py: 3, textStyle: 'md' },
+    },
+  },
+  defaultVariants: {
+    variant: 'solid',
+    size: 'md',
+  },
+})

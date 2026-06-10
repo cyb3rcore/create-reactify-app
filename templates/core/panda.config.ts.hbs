@@ -1,0 +1,67 @@
+import { defineConfig } from "@pandacss/dev"
+import { absoluteCenter } from "@/theme/recipes/absolute-center"
+import { badge } from "@/theme/recipes/badge"
+import { button } from "@/theme/recipes/button"
+import { card } from "@/theme/recipes/card"
+import { heading } from "@/theme/recipes/heading"
+import { spinner } from "@/theme/recipes/spinner"
+import { text } from "@/theme/recipes/text"
+
+export default defineConfig({
+  preflight: true,
+  include: ["./src/**/*.{js,jsx,ts,tsx}", "./pages/**/*.{js,jsx,ts,tsx}"],
+  exclude: [],
+  jsxFramework: 'react',
+  theme: {
+    extend: {
+      recipes: {
+        absoluteCenter,
+        badge,
+        button,
+        heading,
+        spinner,
+        text,
+      },
+      slotRecipes: {
+        card,
+      },
+      tokens: {
+        colors: {
+          primary: { value: "#6366f1" },
+          "primary-fg": { value: "#ffffff" },
+          muted: { value: "#f4f4f5" },
+          "muted-fg": { value: "#71717a" },
+        },
+      },
+      semanticTokens: {
+        colors: {
+          fg: {
+            default: { value: { _light: "#18181b", _dark: "#fafafa" } },
+            muted: { value: { _light: "#71717a", _dark: "#a1a1aa" } },
+          },
+          bg: {
+            default: { value: { _light: "#ffffff", _dark: "#09090b" } },
+            muted: { value: { _light: "#f4f4f5", _dark: "#18181b" } },
+          },
+          border: {
+            default: { value: { _light: "#e4e4e7", _dark: "#27272a" } },
+          },
+        },
+      },
+    },
+  },
+  globalCss: {
+    "*, *::before, *::after": {
+      borderColor: "var(--colors-border-default)",
+    },
+    html: {
+      color: "var(--colors-fg-default)",
+      bg: "var(--colors-bg-default)",
+      fontFamily: "Inter, system-ui, sans-serif",
+    },
+    body: {
+      margin: 0,
+    },
+  },
+  outdir: "styled-system",
+})
