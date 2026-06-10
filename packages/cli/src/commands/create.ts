@@ -1,7 +1,6 @@
 import { defineCommand, runMain } from "citty";
 import consola from "consola";
 import { existsSync } from "node:fs";
-import { resolve } from "node:path";
 import type { ProjectConfig, API, Auth, Database, ORM, Runtime, PackageManager, Addon } from "@cyber-stack/types";
 import { ProjectConfigSchema } from "@cyber-stack/types";
 import { generateProject, VirtualFileSystem, registerTemplateHelpers } from "@cyber-stack/template-generator";
@@ -196,14 +195,9 @@ export async function createProject(options: CreateOptions): Promise<void> {
     return;
   }
 
-  // Try local templates (for monorepo dev), fall back to remote GitHub
-  const templateDir = resolve(import.meta.dirname!, "..", "..", "..", "templates");
-  const hasLocalTemplates = (() => { try { return existsSync(templateDir); } catch { return false; } })();
-
+  // Fetch templates from GitHub
   consola.info("Fetching templates...");
-  const templates = hasLocalTemplates
-    ? await fetchTemplates({ templateDir })
-    : await fetchTemplates();
+  const templates = await fetchTemplates();
 
   // Generate project in VFS
   const vfs = new VirtualFileSystem();
