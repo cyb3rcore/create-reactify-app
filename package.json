@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "bun run --filter create-cyber-stack dev",
     "build": "bun run --filter create-cyber-stack build",
+    "link": "bun run build && cd packages/cli && bun link",
     "typecheck": "tsc --noEmit",
     "test": "bun run --filter '*' test"
   },
