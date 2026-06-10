@@ -31,7 +31,19 @@ export const ProjectConfigSchema = z.object({
   git: z.boolean(),
   install: z.boolean(),
   addons: AddonsSchema,
-});
+}).refine(
+  (data) => !(data.database === "none" && data.orm !== "none"),
+  {
+    message: "ORM requires a database. Set --database sqlite or --database postgres, or set --orm none.",
+    path: ["orm"],
+  }
+).refine(
+  (data) => !(data.orm === "none" && data.database !== "none"),
+  {
+    message: "Database requires an ORM. Set --orm drizzle, or set --database none.",
+    path: ["orm"],
+  }
+);
 
 export type ProjectConfig = z.infer<typeof ProjectConfigSchema>;
 export type Runtime = z.infer<typeof RuntimeSchema>;

@@ -21,12 +21,11 @@ export function processPackageJson(
 
   if (config.auth === "none" && pkg.dependencies) {
     delete pkg.dependencies["better-auth"];
-    delete pkg.dependencies["@better-auth/fastify"];
   }
 
   if (config.database === "none" && pkg.dependencies) {
     delete pkg.dependencies["drizzle-orm"];
-    delete pkg.dependencies["better-sqlite3"];
+    delete pkg.dependencies["@libsql/client"];
     delete pkg.dependencies["pg"];
   }
 
@@ -35,7 +34,7 @@ export function processPackageJson(
   }
 
   if (config.database === "postgres" && pkg.dependencies) {
-    delete pkg.dependencies["better-sqlite3"];
+    delete pkg.dependencies["@libsql/client"];
   }
 
   vfs.writeFile("package.json", JSON.stringify(pkg, null, 2) + "\n");

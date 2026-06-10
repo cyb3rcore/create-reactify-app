@@ -2,6 +2,7 @@ import type { ProjectConfig } from "@cyber-stack/types";
 import type { VirtualFileSystem } from "../core/virtual-fs";
 import { processPackageJson } from "./processors/package-json";
 import { processEnvVars } from "./processors/env-vars";
+import { processReadme } from "./processors/readme";
 
 export function runPostProcessors(
   vfs: VirtualFileSystem,
@@ -9,4 +10,5 @@ export function runPostProcessors(
 ): void {
   processPackageJson(vfs, config);
   processEnvVars(vfs, config);
+  processReadme(vfs, config);
 }

@@ -5,16 +5,38 @@ import { tmpdir } from "node:os";
 import { execSync } from "node:child_process";
 
 const DEFAULT_TEMPLATE_REPO = "git@github.com:cybercore-ma/template-amal.git";
+const MAX_RETRIES = 3;
 
 export async function fetchTemplates(
   repoUrl?: string
 ): Promise<TemplateMap> {
   const url = repoUrl || DEFAULT_TEMPLATE_REPO;
+
+  let lastError: Error | null = null;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      return await cloneAndLoad(url);
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      if (attempt < MAX_RETRIES) {
+        // Exponential backoff: 1s, 2s, 4s...
+        const delay = Math.pow(2, attempt - 1) * 1000;
+        console.warn(`Template fetch failed (attempt ${attempt}/${MAX_RETRIES}), retrying in ${delay}ms...`);
+        await new Promise((r) => setTimeout(r, delay));
+      }
+    }
+  }
+
+  throw new Error(
+    `Failed to fetch templates after ${MAX_RETRIES} attempts: ${lastError?.message}`
+  );
+}
+
+function cloneAndLoad(repoUrl: string): TemplateMap {
   const tmpDir = mkdtempSync(join(tmpdir(), "cyber-stack-templates-"));
 
   try {
-    // Shallow clone via SSH — no tokens, no API, just keys
-    execSync(`git clone --depth 1 "${url}" "${tmpDir}"`, {
+    execSync(`git clone --depth 1 "${repoUrl}" "${tmpDir}"`, {
       stdio: "pipe",
       timeout: 30_000,
     });
