@@ -127,6 +127,7 @@ export async function createProject(options: CreateOptions): Promise<void> {
 
   // Build partial config from CLI args
   let config: Partial<ProjectConfig> = {
+    projectName: options.projectName,
     template: "amal",
     runtime: options.runtime,
     api: options.api,
@@ -151,6 +152,7 @@ export async function createProject(options: CreateOptions): Promise<void> {
   }
 
   // Set defaults for any remaining missing fields
+  config.projectName = config.projectName || "my-app";
   config.runtime = config.runtime || "bun";
   config.api = config.api || "none";
   config.auth = config.auth || "none";
@@ -161,7 +163,6 @@ export async function createProject(options: CreateOptions): Promise<void> {
   config.git = config.git !== undefined ? config.git : true;
   config.install = config.install ?? false;
   config.addons = config.addons || [];
-  config.projectName = config.projectName || options.projectName || "my-app";
 
   // Validate
   const parsed = ProjectConfigSchema.safeParse(config);
