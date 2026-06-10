@@ -34,9 +34,9 @@ function loadLocalTemplates(dir: string): TemplateMap {
       if (entry.isDirectory()) {
         walkDir(fullPath);
       } else if (entry.isFile()) {
+        // Key as "templates/<relative-path>" to match handler prefixes
         const relativePath = relative(dir, fullPath);
-        const content = readFileSync(fullPath, "utf-8");
-        templates[relativePath] = content;
+        templates[`templates/${relativePath}`] = readFileSync(fullPath, "utf-8");
       }
     }
   }

@@ -1,8 +1,7 @@
-import { defineCommand, main } from "citty";
+import { defineCommand, runMain } from "citty";
 import consola from "consola";
 import { existsSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 import type { ProjectConfig, API, Auth, Database, ORM, Runtime, PackageManager, Addon } from "@cyber-stack/types";
 import { ProjectConfigSchema } from "@cyber-stack/types";
 import { generateProject, VirtualFileSystem, registerTemplateHelpers } from "@cyber-stack/template-generator";
@@ -28,10 +27,10 @@ export interface CreateOptions {
   dryRun?: boolean;
 }
 
-export const createCommand = defineCommand({
+const cliCommand = defineCommand({
   meta: {
-    name: "create",
-    description: "Create a new project",
+    name: "create-cyber-stack",
+    description: "Scaffold a new cyber-stack project",
   },
   args: {
     projectName: {
@@ -129,7 +128,6 @@ export async function createProject(options: CreateOptions): Promise<void> {
   // Build partial config from CLI args
   let config: Partial<ProjectConfig> = {
     template: "amal",
-    projectName: options.projectName || "my-app",
     runtime: options.runtime,
     api: options.api,
     auth: options.auth,
@@ -139,6 +137,7 @@ export async function createProject(options: CreateOptions): Promise<void> {
     git: options.git,
     install: options.install,
     addons: options.addons || [],
+    projectDir: "",
   };
 
   // Fill missing flags with interactive prompts (unless --yes)
@@ -150,13 +149,18 @@ export async function createProject(options: CreateOptions): Promise<void> {
     }
   }
 
-  // Set orm based on database if not specified
-  if (!config.orm) {
-    config.orm = config.database !== "none" ? "drizzle" : "none";
-  }
-
-  // Fill git default
-  if (config.git === undefined) config.git = true;
+  // Set defaults for any remaining missing fields
+  config.runtime = config.runtime || "bun";
+  config.api = config.api || "none";
+  config.auth = config.auth || "none";
+  config.database = config.database || "none";
+  config.orm = config.orm || (config.database !== "none" ? "drizzle" : "none" as ORM);
+  config.packageManager = config.packageManager || "bun";
+  config.projectDir = config.projectDir || "";
+  config.git = config.git !== undefined ? config.git : true;
+  config.install = config.install ?? false;
+  config.addons = config.addons || [];
+  config.projectName = config.projectName || options.projectName || "my-app";
 
   // Validate
   const parsed = ProjectConfigSchema.safeParse(config);
@@ -169,7 +173,14 @@ export async function createProject(options: CreateOptions): Promise<void> {
   }
 
   const finalConfig = parsed.data;
-  finalConfig.projectDir = getProjectDir(finalConfig.projectName);
+
+  // If projectName is an absolute path, use it as projectDir and extract name
+  if (finalConfig.projectName.startsWith("/")) {
+    finalConfig.projectDir = finalConfig.projectName;
+    finalConfig.projectName = finalConfig.projectName.split("/").pop() || "my-app";
+  } else {
+    finalConfig.projectDir = getProjectDir(finalConfig.projectName);
+  }
 
   // Check if target directory exists
   if (existsSync(finalConfig.projectDir)) {
@@ -183,9 +194,8 @@ export async function createProject(options: CreateOptions): Promise<void> {
     return;
   }
 
-  // Resolve templates directory (dev mode: from monorepo root)
-  const __dirname = dirname(fileURLToPath(import.meta.url));
-  const templateDir = resolve(__dirname, "..", "..", "..", "..", "templates");
+  // Resolve templates directory (dev mode: from monorepo root at ../../../)
+  const templateDir = resolve(import.meta.dirname!, "..", "..", "..", "templates");
 
   consola.info("Fetching templates...");
   const templates = await fetchTemplates({ templateDir });
@@ -213,19 +223,5 @@ export async function createProject(options: CreateOptions): Promise<void> {
 }
 
 export async function runCli(): Promise<void> {
-  const mainCommand = defineCommand({
-    meta: {
-      name: "create-cyber-stack",
-      description: "Scaffold a new cyber-stack project",
-    },
-    subCommands: {
-      create: createCommand,
-    },
-    async run() {
-      // Default: run create with no args
-      await createProject({});
-    },
-  });
-
-  await main(mainCommand);
+  await runMain(cliCommand);
 }
