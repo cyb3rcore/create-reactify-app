@@ -4,15 +4,30 @@ import { join, relative } from "node:path";
 import { tmpdir } from "node:os";
 import { execSync } from "node:child_process";
 
-const TEMPLATE_REPO = "cybercore-ma/template-amal";
-const DEFAULT_TEMPLATE_URL = `https://api.github.com/repos/${TEMPLATE_REPO}/tarball`;
+const DEFAULT_TEMPLATE_REPO = "git@github.com:cybercore-ma/template-amal.git";
 
-export async function fetchTemplates(version?: string): Promise<TemplateMap> {
-  const url = version
-    ? `${DEFAULT_TEMPLATE_URL}/${version}`
-    : DEFAULT_TEMPLATE_URL;
+export async function fetchTemplates(
+  repoUrl?: string
+): Promise<TemplateMap> {
+  const url = repoUrl || DEFAULT_TEMPLATE_REPO;
+  const tmpDir = mkdtempSync(join(tmpdir(), "cyber-stack-templates-"));
 
-  return fetchRemoteTemplates(url);
+  try {
+    // Shallow clone via SSH — no tokens, no API, just keys
+    execSync(`git clone --depth 1 "${url}" "${tmpDir}"`, {
+      stdio: "pipe",
+      timeout: 30_000,
+    });
+
+    const templatesDir = join(tmpDir, "templates");
+    return loadLocalTemplates(templatesDir);
+  } finally {
+    try {
+      rmSync(tmpDir, { recursive: true, force: true });
+    } catch {
+      // best effort cleanup
+    }
+  }
 }
 
 function loadLocalTemplates(dir: string): TemplateMap {
@@ -34,76 +49,4 @@ function loadLocalTemplates(dir: string): TemplateMap {
 
   walkDir(dir);
   return templates;
-}
-
-async function fetchRemoteTemplates(url: string): Promise<TemplateMap> {
-  const tmpDir = mkdtempSync(join(tmpdir(), "cyber-stack-templates-"));
-
-  try {
-    const tarballPath = join(tmpDir, "template.tar.gz");
-
-    // Try gh CLI first (handles auth automatically), fall back to direct fetch with token
-    try {
-      execSync(
-        `gh api repos/cybercore-ma/template-amal/tarball > "${tarballPath}"`,
-        { stdio: "pipe" }
-      );
-    } catch {
-      // Fallback: direct fetch with optional GITHUB_TOKEN
-      const response = await fetch(url, {
-        headers: {
-          ...(process.env.GITHUB_TOKEN
-            ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
-            : {}),
-        },
-        redirect: "follow",
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to fetch templates: ${response.status} ${response.statusText}`
-        );
-      }
-
-      const buffer = Buffer.from(await response.arrayBuffer());
-      const { writeFileSync } = await import("node:fs");
-      writeFileSync(tarballPath, buffer);
-    }
-
-    execSync(`tar -xzf "${tarballPath}" -C "${tmpDir}"`, { stdio: "ignore" });
-
-    const entries = readdirSync(tmpDir);
-    const extractedDir = entries.find(
-      (e) => e.startsWith("cybercore-ma-template-amal-") || e === "templates"
-    );
-
-    if (!extractedDir) {
-      throw new Error("Could not find extracted template directory");
-    }
-
-    const templateBase = join(tmpDir, extractedDir);
-    const templatesDir = join(templateBase, "templates");
-
-    if (existsSync(templatesDir)) {
-      return loadLocalTemplates(templatesDir);
-    }
-
-    return loadLocalTemplates(templateBase);
-  } finally {
-    try {
-      rmSync(tmpDir, { recursive: true, force: true });
-    } catch {
-      // best effort cleanup
-    }
-  }
-}
-
-function existsSync(p: string): boolean {
-  try {
-    const { statSync } = require("node:fs");
-    statSync(p);
-    return true;
-  } catch {
-    return false;
-  }
 }
