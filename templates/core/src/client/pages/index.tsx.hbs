@@ -1,0 +1,121 @@
+import { useState } from 'react'
+import { useRouteContext } from '@fastify/react/client'
+import { css } from 'styled-system/css'
+import { Heading, Text } from '@/components/ui'
+
+type Todo = {
+  id: number
+  text: string
+  done: boolean
+}
+
+export function getMeta() {
+  return {
+    title: '{{projectName}}',
+    description: 'A cyber-stack project',
+  }
+}
+
+export default function Index() {
+  const { state } = useRouteContext()
+  const [todos, setTodos] = useState<Todo[]>([])
+  const [input, setInput] = useState('')
+
+  if (import.meta.env.SSR) {
+    state.title = '{{projectName}}'
+  }
+
+  function addTodo() {
+    if (!input.trim()) return
+    setTodos([...todos, { id: Date.now(), text: input, done: false }])
+    setInput('')
+  }
+
+  function toggleTodo(id: number) {
+    setTodos(todos.map(t => t.id === id ? { ...t, done: !t.done } : t))
+  }
+
+  function removeTodo(id: number) {
+    setTodos(todos.filter(t => t.id !== id))
+  }
+
+  return (
+    <div className={css({ maxW: '2xl', mx: 'auto', p: 8 })}>
+      <Heading>📋 {{projectName}}</Heading>
+      <Text>A cyber-stack project with Fastify + React + Panda CSS</Text>
+
+      <div className={css({ display: 'flex', gap: 2, mt: 6 })}>
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && addTodo()}
+          placeholder="Add a todo..."
+          className={css({
+            flex: 1,
+            px: 3,
+            py: 2,
+            border: '1px solid',
+            borderColor: 'border.default',
+            rounded: 'md',
+          })}
+        />
+        <button
+          onClick={addTodo}
+          className={css({
+            px: 4,
+            py: 2,
+            bg: 'primary',
+            color: 'primary-fg',
+            rounded: 'md',
+            cursor: 'pointer',
+          })}
+        >
+          Add
+        </button>
+      </div>
+
+      <ul className={css({ listStyle: 'none', p: 0, mt: 4 })}>
+        {todos.map(todo => (
+          <li
+            key={todo.id}
+            className={css({
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              py: 2,
+              px: 3,
+              borderBottom: '1px solid',
+              borderColor: 'border.default',
+            })}
+          >
+            <input
+              type="checkbox"
+              checked={todo.done}
+              onChange={() => toggleTodo(todo.id)}
+            />
+            <span
+              className={css({
+                flex: 1,
+                textDecoration: todo.done ? 'line-through' : 'none',
+                color: todo.done ? 'fg.muted' : 'fg.default',
+              })}
+            >
+              {todo.text}
+            </span>
+            <button
+              onClick={() => removeTodo(todo.id)}
+              className={css({
+                color: 'red.500',
+                cursor: 'pointer',
+                bg: 'transparent',
+                border: 'none',
+              })}
+            >
+              ×
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}

@@ -195,11 +195,14 @@ export async function createProject(options: CreateOptions): Promise<void> {
     return;
   }
 
-  // Resolve templates directory (dev mode: from monorepo root at ../../../)
+  // Try local templates (for monorepo dev), fall back to remote GitHub
   const templateDir = resolve(import.meta.dirname!, "..", "..", "..", "templates");
+  const hasLocalTemplates = (() => { try { return existsSync(templateDir); } catch { return false; } })();
 
   consola.info("Fetching templates...");
-  const templates = await fetchTemplates({ templateDir });
+  const templates = hasLocalTemplates
+    ? await fetchTemplates({ templateDir })
+    : await fetchTemplates();
 
   // Generate project in VFS
   const vfs = new VirtualFileSystem();
