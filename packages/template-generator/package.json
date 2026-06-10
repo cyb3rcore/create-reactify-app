@@ -1,0 +1,28 @@
+{
+  "name": "@cyber-stack/template-generator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@cyber-stack/types": "workspace:*",
+    "handlebars": "^4.7.9"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsdown": "^0.22.0",
+    "typescript": "^5.9.0"
+  }
+}
