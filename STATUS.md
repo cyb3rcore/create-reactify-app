@@ -141,6 +141,18 @@ template-amal/
 
 ---
 
+## Routes / pages
+
+| Route | File | Included when | Status |
+|-------|------|---------------|--------|
+| `/` | `src/client/pages/index.tsx` | Always | ✅ Todo example (client-side only, doesn't use API/DB) |
+| `/login` | `src/client/pages/login.tsx` | `--auth better-auth` | ❌ Not created yet |
+| `/profile` | `src/client/pages/profile.tsx` | `--auth better-auth` | ❌ Not created yet |
+| `/api-demo` | `src/client/pages/api-demo.tsx` | `--api trpc` or `--api orpc` | ❌ Not created yet |
+| `/db-demo` | `src/client/pages/db-demo.tsx` | `--database sqlite` or `postgres` | ❌ Not created yet |
+
+The index page also doesn't have nav links to feature pages (no `@if` markers for conditional nav).
+
 ## What's not implemented
 
 | Thing | Why skipped |
