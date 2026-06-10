@@ -8,10 +8,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "dist",
-    "isolatedModules": true
+    "isolatedModules": true,
+    "noEmit": true
   }
 }
