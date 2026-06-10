@@ -1,6 +1,10 @@
 import Handlebars from "handlebars";
 import type { ProjectConfig } from "@cyber-stack/types";
 import { VirtualFileSystem } from "./core/virtual-fs";
+import { processCore } from "./handlers/core";
+import { processApi } from "./handlers/api";
+import { processAuth } from "./handlers/auth";
+import { processDatabase } from "./handlers/database";
 
 export interface TemplateMap {
   [path: string]: string;
@@ -35,14 +39,12 @@ export function processTemplatesFromPrefix(
   const prefixPath = prefix ? prefix.replace(/\/$/, "") + "/" : "";
 
   for (const [templatePath, rawContent] of Object.entries(templates)) {
-    // Skip templates that don't match the prefix
     if (prefixPath && !templatePath.startsWith(prefixPath)) continue;
 
     const relativePath = prefixPath
       ? templatePath.slice(prefixPath.length)
       : templatePath;
 
-    // Guard against empty relative path (path equals prefix exactly)
     if (!relativePath) continue;
 
     const outputPath = outputPrefix
@@ -69,9 +71,8 @@ export function generateProject(
   templates: TemplateMap,
   config: ProjectConfig
 ): void {
-  // Placeholder for full pipeline orchestration.
-  // Feature handlers will be wired here in subsequent tasks.
-  throw new Error(
-    "generateProject is not yet implemented. Use individual handlers instead."
-  );
+  processCore(vfs, templates, config);
+  processApi(vfs, templates, config);
+  processAuth(vfs, templates, config);
+  processDatabase(vfs, templates, config);
 }
