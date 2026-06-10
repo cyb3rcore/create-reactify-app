@@ -1,10 +1,10 @@
-export interface VFSNode {
+export type VFSNode = {
   name: string;
-  type: "file" | "directory";
   path: string;
-  children?: VFSNode[];
-  content?: string;
-}
+} & (
+  | { type: "file"; content?: string }
+  | { type: "directory"; children: VFSNode[] }
+);
 
 export class VirtualFileSystem {
   private files: Map<string, string> = new Map();
@@ -26,7 +26,7 @@ export class VirtualFileSystem {
   }
 
   getAllFiles(): string[] {
-    return Array.from(this.files.keys()).sort();
+    return [...this.files.keys()].sort();
   }
 
   getFileCount(): number {
@@ -52,16 +52,17 @@ export class VirtualFileSystem {
         const fullPath = parentPath ? `${parentPath}/${part}` : part;
 
         if (isLast) {
-          current.children!.push({
+          current.children.push({
             name: part,
             type: "file",
             path: fullPath,
             content,
           });
         } else {
-          let dir = current.children!.find(
-            (c) => c.name === part && c.type === "directory"
-          ) as VFSNode | undefined;
+          let dir = current.children.find(
+            (c): c is VFSNode & { type: "directory"; children: VFSNode[] } =>
+              c.type === "directory" && c.name === part
+          );
           if (!dir) {
             dir = {
               name: part,
@@ -69,7 +70,7 @@ export class VirtualFileSystem {
               path: fullPath,
               children: [],
             };
-            current.children!.push(dir);
+            current.children.push(dir);
           }
           current = dir;
         }
