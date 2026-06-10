@@ -26,10 +26,6 @@ export async function writeProject(
   consola.success(`Wrote ${files.length} files to ${targetDir}`);
 }
 
-export function getProjectDir(
-  projectName: string,
-  parentDir?: string
-): string {
-  const base = parentDir || process.cwd();
-  return join(base, projectName);
+export function getProjectDir(projectName: string): string {
+  return join(process.cwd(), projectName);
 }

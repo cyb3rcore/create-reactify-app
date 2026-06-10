@@ -144,7 +144,8 @@ export async function createProject(options: CreateOptions): Promise<void> {
   if (!options.yes) {
     try {
       config = await fillMissingFlags(config);
-    } catch {
+    } catch (err) {
+      consola.error(err instanceof Error ? err.message : "Prompt failed");
       process.exit(1);
     }
   }
@@ -154,7 +155,7 @@ export async function createProject(options: CreateOptions): Promise<void> {
   config.api = config.api || "none";
   config.auth = config.auth || "none";
   config.database = config.database || "none";
-  config.orm = config.orm || (config.database !== "none" ? "drizzle" : "none" as ORM);
+  config.orm = config.orm || (config.database !== "none" ? "drizzle" : "none") as ORM;
   config.packageManager = config.packageManager || "bun";
   config.projectDir = config.projectDir || "";
   config.git = config.git !== undefined ? config.git : true;
@@ -219,7 +220,7 @@ export async function createProject(options: CreateOptions): Promise<void> {
 
   consola.success(`Project "${finalConfig.projectName}" created!`);
   consola.info(`  cd ${finalConfig.projectName}`);
-  consola.info(`  bun run dev`);
+  consola.info(`  ${finalConfig.packageManager} run dev`);
 }
 
 export async function runCli(): Promise<void> {
