@@ -11,7 +11,7 @@ export function processEnvVars(
   ];
 
   if (config.database === "sqlite") {
-    vars.push(`DATABASE_URL=file:./data/${config.projectName}.db`);
+    vars.push(`DATABASE_URL=file:${config.projectName}.db`);
   } else if (config.database === "postgres") {
     vars.push(`DATABASE_URL=postgres://localhost:5432/${config.projectName}`);
   }
