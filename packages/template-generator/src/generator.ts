@@ -5,6 +5,10 @@ import { processCore } from "./handlers/core";
 import { processApi } from "./handlers/api";
 import { processAuth } from "./handlers/auth";
 import { processDatabase } from "./handlers/database";
+import { processMcp } from "./addons/mcp";
+import { processSkills } from "./addons/skills";
+import { processVitePlus } from "./addons/vite-plus";
+import { runPostProcessors } from "./post-process";
 
 export interface TemplateMap {
   [path: string]: string;
@@ -75,4 +79,8 @@ export function generateProject(
   processApi(vfs, templates, config);
   processAuth(vfs, templates, config);
   processDatabase(vfs, templates, config);
+  processMcp(vfs, templates, config);
+  processSkills(vfs, templates, config);
+  processVitePlus(vfs, config);
+  runPostProcessors(vfs, config);
 }

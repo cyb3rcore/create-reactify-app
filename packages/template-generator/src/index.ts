@@ -6,3 +6,4 @@ export {
   registerTemplateHelpers,
 } from "./generator";
 export type { TemplateMap } from "./generator";
+export { runPostProcessors } from "./post-process";
