@@ -8,17 +8,7 @@ export function processAuth(
   templates: TemplateMap,
   config: ProjectConfig
 ): void {
-  if (config.auth === "none") {
-    // Still process the stub provider so imports don't break
-    processTemplatesFromPrefix(
-      vfs,
-      templates,
-      "templates/auth/none",
-      "",
-      config
-    );
-    return;
-  }
+  if (config.auth === "none") return;
 
   processTemplatesFromPrefix(
     vfs,
