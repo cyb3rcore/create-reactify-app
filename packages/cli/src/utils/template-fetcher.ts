@@ -4,7 +4,7 @@ import { join, relative } from "node:path";
 import { tmpdir } from "node:os";
 import { execSync } from "node:child_process";
 
-const DEFAULT_TEMPLATE_REPO = "git@github.com:cybercore-ma/template-amal.git";
+const DEFAULT_TEMPLATE_REPO = "git@github.com:cyb3rcore/template-lamsa.git";
 const MAX_RETRIES = 3;
 
 export async function fetchTemplates(
