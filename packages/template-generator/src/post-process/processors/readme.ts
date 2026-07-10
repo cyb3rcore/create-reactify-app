@@ -5,7 +5,7 @@ export function processReadme(
   vfs: VirtualFileSystem,
   config: ProjectConfig
 ): void {
-  const features: string[] = ["Fastify + React SSR"];
+  const features: string[] = ["Fastify + React SSR + RSC"];
 
   if (config.api === "trpc") features.push("tRPC API layer");
   else if (config.api === "orpc") features.push("OpenRPC API layer");
@@ -26,8 +26,8 @@ ${features.join(" | ")}
 ## Getting Started
 
 \`\`\`bash
-bun install
-bun run dev
+npm install
+npm run dev
 \`\`\`
 
 Open [http://localhost:3000](http://localhost:3000).
@@ -36,20 +36,18 @@ Open [http://localhost:3000](http://localhost:3000).
 
 | Command           | Description                          |
 | ----------------- | ------------------------------------ |
-| \`bun run dev\`     | Start development server with HMR    |
-| \`bun run build\`   | Build for production                 |
-| \`bun run start\`   | Start production server              |
-| \`bun run prepare\` | Run Panda CSS codegen                |
+| \`npm run dev\`     | Start development server with HMR     |
+| \`npm run build\`   | Build for production                  |
+| \`npm run start\`   | Start production server               |
 
 ## Stack
 
-- **Framework:** Fastify 5 + React 19
-- **SSR:** @fastify/react + @fastify/vite
-- **Styling:** Panda CSS (zero-runtime CSS-in-JS)
-- **UI:** Ark UI + Park UI
-- **Routing:** react-router 7
+- **Framework:** Fastify 5 + React 19 + Vite 8
+- **SSR:** Reactify (@cyb3rcore/reactify)
+- **RSC:** React Server Components with Fastify context bridge
+- **Routing:** File-system based (reactify/router)
 - **State:** Valtio
-- **Build:** Vite 7
+- **Streaming:** React 19 renderToReadableStream
 `;
 
   vfs.writeFile("README.md", readme);
