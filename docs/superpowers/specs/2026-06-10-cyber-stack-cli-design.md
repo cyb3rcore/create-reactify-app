@@ -1,8 +1,8 @@
-# create-cyber-stack — CLI Design Specification
+# create-reactify-app — CLI Design Specification
 
 ## Overview
 
-A CLI tool (`create-cyber-stack`) for scaffolding SSR web applications using the **Amal** stack: Fastify 5 + @fastify/react + React 19 + Panda CSS + Ark UI + Vite 7. Modeled after `create-better-t-stack` but focused on a single SSR stack with optional feature toggling.
+A CLI tool (`create-reactify-app`) for scaffolding SSR web applications using the **Amal** stack: Fastify 5 + @fastify/react + React 19 + Panda CSS + Ark UI + Vite 7. Modeled after `create-better-t-stack` but focused on a single SSR stack with optional feature toggling.
 
 **Template repo:** `cybercore-ma/template-amal`
 
@@ -28,14 +28,14 @@ bun create cyber-stack@latest my-app \
 ### Monorepo Structure
 
 ```
-create-cyber-stack/
+create-reactify-app/
 ├── package.json                 # bun workspace root
 ├── tsconfig.json                # shared TS config
 ├── bunfig.toml
 ├── .gitignore
 ├── packages/
-│   ├── cli/                     # create-cyber-stack (published)
-│   │   ├── package.json         # name: create-cyber-stack, bin
+│   ├── cli/                     # create-reactify-app (published)
+│   │   ├── package.json         # name: create-reactify-app, bin
 │   │   ├── build.config.ts      # tsdown bundler config
 │   │   └── src/
 │   │       ├── index.ts         # Programmatic API (create function)
@@ -349,16 +349,16 @@ Separate deliverable: `cybercore-ma/template-amal`
 
 ---
 
-## 8. CLI Package (`create-cyber-stack`)
+## 8. CLI Package (`create-reactify-app`)
 
 ### Package.json
 
 ```json
 {
-  "name": "create-cyber-stack",
+  "name": "create-reactify-app",
   "version": "0.1.0",
   "bin": {
-    "create-cyber-stack": "dist/cli.mjs"
+    "create-reactify-app": "dist/cli.mjs"
   },
   "type": "module",
   "exports": {
@@ -383,7 +383,7 @@ Separate deliverable: `cybercore-ma/template-amal`
 ```
 
 ### CI/CD
-- Published to npm as `create-cyber-stack`
+- Published to npm as `create-reactify-app`
 - Version bumps via changesets or manual tagging
 - CI builds all packages, runs tests, publishes
 

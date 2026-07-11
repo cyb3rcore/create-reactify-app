@@ -1,8 +1,8 @@
-# create-cyber-stack CLI — Implementation Plan
+# create-reactify-app CLI — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the `create-cyber-stack` CLI monorepo — a tool that scaffolds SSR web apps from the `cybercore-ma/template-amal` template, with optional feature selection.
+**Goal:** Build the `create-reactify-app` CLI monorepo — a tool that scaffolds SSR web apps from the `cybercore-ma/template-amal` template, with optional feature selection.
 
 **Architecture:** Bun monorepo with three packages: `types` (Zod schemas), `template-generator` (VirtualFileSystem + Handlebars handlers + post-processors), and `cli` (citty arg parsing + template fetch + disk write + install). Templates are fetched from a remote GitHub repo at scaffold time; a local `templates/` directory is provided at the monorepo root for development.
 
@@ -13,7 +13,7 @@
 ## File Structure
 
 ```
-create-cyber-stack/
+create-reactify-app/
 ├── package.json                     # bun workspace root
 ├── tsconfig.json                    # shared TS config
 ├── bunfig.toml
@@ -89,7 +89,7 @@ create-cyber-stack/
 
 ```json
 {
-  "name": "create-cyber-stack-monorepo",
+  "name": "create-reactify-app-monorepo",
   "private": true,
   "workspaces": ["packages/*"],
   "scripts": {
@@ -1213,12 +1213,12 @@ git commit -m "feat: add development templates for all features"
 
 ```json
 {
-  "name": "create-cyber-stack",
+  "name": "create-reactify-app",
   "version": "0.1.0",
   "description": "Scaffold SSR web applications with the Amal stack",
   "type": "module",
   "bin": {
-    "create-cyber-stack": "./dist/cli.mjs"
+    "create-reactify-app": "./dist/cli.mjs"
   },
   "exports": {
     ".": {
@@ -1458,7 +1458,7 @@ export function initGitRepo(projectDir: string): void {
   try {
     execSync("git init", { cwd: projectDir, stdio: "ignore" });
     execSync("git add .", { cwd: projectDir, stdio: "ignore" });
-    execSync('git commit -m "initial: scaffold from create-cyber-stack"', {
+    execSync('git commit -m "initial: scaffold from create-reactify-app"', {
       cwd: projectDir,
       stdio: "ignore",
     });
@@ -1483,7 +1483,7 @@ function isCancel(value: unknown): value is symbol {
 export async function fillMissingFlags(
   config: Partial<ProjectConfig>
 ): Promise<ProjectConfig> {
-  p.intro("create-cyber-stack");
+  p.intro("create-reactify-app");
 
   const result = await p.group(
     {
@@ -1706,7 +1706,7 @@ export const createCommand = defineCommand({
 });
 
 export async function createProject(options: CreateOptions) {
-  consola.info("create-cyber-stack v0.1.0");
+  consola.info("create-reactify-app v0.1.0");
 
   // Build partial config from CLI args
   let config: Partial<ProjectConfig> = {
@@ -1803,7 +1803,7 @@ export async function createProject(options: CreateOptions) {
 export async function runCli() {
   const mainCommand = defineCommand({
     meta: {
-      name: "create-cyber-stack",
+      name: "create-reactify-app",
       description: "Scaffold a new cyber-stack project",
     },
     subCommands: {
@@ -1837,7 +1837,7 @@ git commit -m "feat: implement create command with prompts, fetch, write, and in
 
 - [ ] **Step 1: Install all workspace dependencies**
 
-Run: `cd /home/teneburu/dev/web/create-cyber-stack && bun install`
+Run: `cd /home/teneburu/dev/web/create-reactify-app && bun install`
 Expected: All workspace packages linked.
 
 - [ ] **Step 2: Build all packages**
@@ -1847,14 +1847,14 @@ Expected: All three packages build successfully.
 
 - [ ] **Step 3: Run a quick smoke test**
 
-Run: `cd /home/teneburu/dev/web/create-cyber-stack && bun run packages/cli/dist/cli.mjs --yes --dry-run`
+Run: `cd /home/teneburu/dev/web/create-reactify-app && bun run packages/cli/dist/cli.mjs --yes --dry-run`
 Expected: CLI runs, shows config, exits without writing.
 
 - [ ] **Step 4: (Optional) Create a real test project**
 
 ```bash
 cd /tmp && rm -rf test-app && \
-  node /home/teneburu/dev/web/create-cyber-stack/packages/cli/dist/cli.mjs \
+  node /home/teneburu/dev/web/create-reactify-app/packages/cli/dist/cli.mjs \
   --yes --api trpc --auth better-auth --database sqlite test-app
 ```
 

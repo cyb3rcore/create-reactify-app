@@ -7,5 +7,5 @@ dist/
 *.log
 .DS_Store
 coverage/
-# Templates fetched from cybercore-ma/template-amal at runtime
+# Templates fetched from cyb3rcore/template-lamsa at runtime
 /templates/

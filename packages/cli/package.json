@@ -1,10 +1,10 @@
 {
-  "name": "create-cyber-stack",
+  "name": "create-reactify-app",
   "version": "0.1.0",
-  "description": "Scaffold SSR web applications with the Amal stack",
+  "description": "Scaffold Reactify projects — Fastify + React + Vite SSR",
   "type": "module",
   "bin": {
-    "create-cyber-stack": "./dist/cli.mjs"
+    "create-reactify-app": "./dist/cli.mjs"
   },
   "exports": {
     ".": {
@@ -24,7 +24,6 @@
   "dependencies": {
     "@cyber-stack/template-generator": "workspace:*",
     "@cyber-stack/types": "workspace:*",
-    "@clack/prompts": "^1.4.0",
     "citty": "^0.2.0",
     "consola": "^3.4.2",
     "zod": "^4.4.0"

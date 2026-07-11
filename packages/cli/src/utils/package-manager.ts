@@ -31,7 +31,7 @@ export function initGitRepo(projectDir: string): void {
   try {
     execSync("git init", { cwd: projectDir, stdio: "ignore" });
     execSync("git add .", { cwd: projectDir, stdio: "ignore" });
-    execSync('git commit -m "initial: scaffold from create-cyber-stack"', {
+    execSync('git commit -m "initial: scaffold from create-reactify-app"', {
       cwd: projectDir,
       stdio: "ignore",
     });
