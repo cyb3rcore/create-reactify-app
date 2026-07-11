@@ -4,7 +4,7 @@
   "description": "Scaffold Reactify projects — Fastify + React + Vite SSR",
   "type": "module",
   "bin": {
-    "create-reactify-app": "./dist/cli.mjs"
+    "create-reactify-app": "dist/cli.mjs"
   },
   "exports": {
     ".": {
