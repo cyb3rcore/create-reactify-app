@@ -1,5 +1,5 @@
 import Handlebars from "handlebars";
-import type { ProjectConfig } from "@cyber-stack/types";
+import type { ProjectConfig } from "../schemas";
 import { VirtualFileSystem } from "./core/virtual-fs";
 import { processCore } from "./handlers/core";
 import { runPostProcessors } from "./post-process";

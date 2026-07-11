@@ -1,4 +1,4 @@
-import type { TemplateMap } from "@cyber-stack/template-generator";
+import type { TemplateMap } from "../vendor/index";
 import { readFileSync, readdirSync, mkdtempSync, rmSync } from "node:fs";
 import { join, relative } from "node:path";
 import { tmpdir } from "node:os";

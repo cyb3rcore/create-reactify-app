@@ -1,4 +1,4 @@
-import { VirtualFileSystem } from "@cyber-stack/template-generator";
+import { VirtualFileSystem } from "../vendor/index";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import consola from "consola";

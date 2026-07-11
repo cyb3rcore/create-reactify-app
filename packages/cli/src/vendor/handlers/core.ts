@@ -1,4 +1,4 @@
-import type { ProjectConfig } from "@cyber-stack/types";
+import type { ProjectConfig } from "../schemas";
 import type { TemplateMap } from "../generator";
 import { processTemplatesFromPrefix } from "../generator";
 import type { VirtualFileSystem } from "../core/virtual-fs";
