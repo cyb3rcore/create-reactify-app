@@ -1,10 +1,10 @@
 {
-  "name": "create-cyber-stack-monorepo",
+  "name": "create-reactify-app-monorepo",
   "private": true,
   "workspaces": ["packages/*"],
   "scripts": {
-    "dev": "bun run --filter create-cyber-stack dev",
-    "build": "bun run --filter create-cyber-stack build",
+    "dev": "bun run --filter create-reactify-app dev",
+    "build": "bun run --filter create-reactify-app build",
     "link": "bun run build && cd packages/cli && bun link",
     "typecheck": "tsc --noEmit",
     "test": "bun run --filter '*' test"

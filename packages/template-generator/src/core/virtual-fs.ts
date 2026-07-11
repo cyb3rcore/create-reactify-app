@@ -17,20 +17,8 @@ export class VirtualFileSystem {
     return this.files.get(path);
   }
 
-  exists(path: string): boolean {
-    return this.files.has(path);
-  }
-
-  deleteFile(path: string): void {
-    this.files.delete(path);
-  }
-
   getAllFiles(): string[] {
     return [...this.files.keys()].sort();
-  }
-
-  getFileCount(): number {
-    return this.files.size;
   }
 
   toTree(rootName: string = "project"): VFSNode {

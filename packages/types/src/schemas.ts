@@ -1,55 +1,24 @@
 import { z } from "zod";
 
 export const ProjectNameSchema = z.string().min(1).max(255);
-
 export const RuntimeSchema = z.enum(["bun", "node"] as const);
-
-export const APISchema = z.enum(["trpc", "orpc", "none"] as const);
-
-export const AuthSchema = z.enum(["better-auth", "none"] as const);
-
-export const DatabaseSchema = z.enum(["sqlite", "postgres", "none"] as const);
-
-export const ORMSchema = z.enum(["drizzle", "none"] as const);
-
 export const PackageManagerSchema = z.enum(["npm", "pnpm", "bun"] as const);
-
-export const AddonSchema = z.enum(["mcp", "skills", "vite-plus"] as const);
-
-export const AddonsSchema = z.array(AddonSchema);
 
 export const ProjectConfigSchema = z.object({
   projectName: ProjectNameSchema,
   projectDir: z.string(),
-  template: z.literal("amal"),
+  template: z.literal("lamsa"),
   runtime: RuntimeSchema,
-  api: APISchema,
-  auth: AuthSchema,
-  database: DatabaseSchema,
-  orm: ORMSchema,
+  api: z.literal("none"),
+  auth: z.literal("none"),
+  database: z.literal("none"),
+  orm: z.literal("none"),
   packageManager: PackageManagerSchema,
   git: z.boolean(),
   install: z.boolean(),
-  addons: AddonsSchema,
-}).refine(
-  (data) => !(data.database === "none" && data.orm !== "none"),
-  {
-    message: "ORM requires a database. Set --database sqlite or --database postgres, or set --orm none.",
-    path: ["orm"],
-  }
-).refine(
-  (data) => !(data.orm === "none" && data.database !== "none"),
-  {
-    message: "Database requires an ORM. Set --orm drizzle, or set --database none.",
-    path: ["orm"],
-  }
-);
+  addons: z.tuple([]),
+});
 
 export type ProjectConfig = z.infer<typeof ProjectConfigSchema>;
 export type Runtime = z.infer<typeof RuntimeSchema>;
-export type API = z.infer<typeof APISchema>;
-export type Auth = z.infer<typeof AuthSchema>;
-export type Database = z.infer<typeof DatabaseSchema>;
-export type ORM = z.infer<typeof ORMSchema>;
 export type PackageManager = z.infer<typeof PackageManagerSchema>;
-export type Addon = z.infer<typeof AddonSchema>;

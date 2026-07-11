@@ -1,15 +1,12 @@
 /**
- * create-cyber-stack — scaffold SSR web apps with the Amal stack
+ * create-reactify-app — React SSR + RSC for Fastify
  *
  * @example
  * ```typescript
- * import { createProject } from "create-cyber-stack";
+ * import { createProject } from "create-reactify-app";
  *
  * await createProject({
  *   projectName: "my-app",
- *   api: "trpc",
- *   auth: "better-auth",
- *   database: "sqlite",
  * });
  * ```
  */

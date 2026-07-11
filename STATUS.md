@@ -4,7 +4,7 @@
 
 Two repositories:
 
-### 1. `~/dev/web/create-cyber-stack` — The CLI
+### 1. `~/dev/web/create-reactify-app` — The CLI
 
 A monorepo with 3 packages:
 
@@ -12,20 +12,20 @@ A monorepo with 3 packages:
 |---------|---------|-------|
 | `packages/types` | Zod schemas + constants for all CLI options | tsdown → ESM |
 | `packages/template-generator` | Handlebars rendering, VFS, feature handlers, post-processors | tsdown → ESM |
-| `packages/cli` (`create-cyber-stack`) | citty CLI, prompts, template fetch, disk write, git/install | tsdown → ESM + bin |
+| `packages/cli` (`create-reactify-app`) | citty CLI, prompts, template fetch, disk write, git/install | tsdown → ESM + bin |
 
 **Entry points:**
-- CLI: `packages/cli/dist/cli.mjs` (bin: `create-cyber-stack`)
+- CLI: `packages/cli/dist/cli.mjs` (bin: `create-reactify-app`)
 - Programmatic API: `packages/cli/src/index.ts` (exports `createProject`)
 
 **Usage (dev):**
 ```bash
-cd ~/dev/web/create-cyber-stack
+cd ~/dev/web/create-reactify-app
 bun run link                      # build + register globally
-bunx create-cyber-stack my-app    # scaffold from anywhere
+bunx create-reactify-app my-app    # scaffold from anywhere
 ```
 
-### 2. `~/dev/web/template-amal` — The Template Source
+### 2. `~/dev/web/template-lamsa` — The Template Source
 
 Two branches:
 
@@ -45,12 +45,10 @@ bun install && bun run dev        # starts on port 3000
 ## CLI flags
 
 ```
---template amal           # only "amal" supported (SSR stack lock-in)
 --runtime bun|node        # defaults to bun
 --api trpc|orpc|none      # API layer
 --auth better-auth|none   # Authentication
 --database sqlite|postgres|none
---orm drizzle|none        # ORM (requires database)
 --package-manager bun|pnpm|npm
 --git                     # init git (default: true)
 --no-git
@@ -120,10 +118,10 @@ bun install && bun run dev        # starts on port 3000
 
 ---
 
-## Template-amal dev branch structure
+## template-lamsa dev branch structure
 
 ```
-template-amal/
+template-lamsa/
 ├── src/                    # Runnable TypeScript (all features enabled)
 │   ├── server.ts           # Fastify entry, has @if markers
 │   ├── server/plugins/     # trpc.ts, auth.ts, orpc.ts
@@ -172,7 +170,7 @@ The index page also doesn't have nav links to feature pages (no `@if` markers fo
 
 ```bash
 # Edit templates in dev branch
-cd ~/dev/web/template-amal
+cd ~/dev/web/template-lamsa
 # ...edit src/ files...
 bun run scripts/generate-templates.ts
 git add -A && git commit -m "..."
