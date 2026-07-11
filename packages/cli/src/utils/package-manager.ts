@@ -1,6 +1,6 @@
 import { execSync } from "node:child_process";
 import consola from "consola";
-import type { PackageManager } from "@cyber-stack/types";
+import type { PackageManager } from "../vendor/schemas";
 
 export function installDependencies(
   projectDir: string,

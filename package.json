@@ -1,7 +1,5 @@
 {
   "name": "create-reactify-app-monorepo",
-  "private": true,
-  "workspaces": ["packages/*"],
   "scripts": {
     "dev": "bun run --filter create-reactify-app dev",
     "build": "bun run --filter create-reactify-app build",

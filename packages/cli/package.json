@@ -15,15 +15,15 @@
       "import": "./dist/cli.mjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsdown --config build.config.ts",
     "dev": "tsdown --watch",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@cyber-stack/template-generator": "workspace:*",
-    "@cyber-stack/types": "workspace:*",
     "citty": "^0.2.0",
     "consola": "^3.4.2",
     "zod": "^4.4.0"

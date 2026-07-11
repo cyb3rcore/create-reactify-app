@@ -1,9 +1,9 @@
 import { defineCommand, runMain } from "citty";
 import consola from "consola";
 import { existsSync } from "node:fs";
-import type { ProjectConfig, Runtime, PackageManager } from "@cyber-stack/types";
-import { ProjectConfigSchema } from "@cyber-stack/types";
-import { generateProject, VirtualFileSystem, registerTemplateHelpers } from "@cyber-stack/template-generator";
+import type { ProjectConfig, Runtime, PackageManager } from "../vendor/schemas";
+import { ProjectConfigSchema } from "../vendor/schemas";
+import { generateProject, VirtualFileSystem, registerTemplateHelpers } from "../vendor/index";
 import { fetchTemplates } from "../utils/template-fetcher";
 import { writeProject, getProjectDir } from "../utils/project-writer";
 import { installDependencies, initGitRepo } from "../utils/package-manager";
