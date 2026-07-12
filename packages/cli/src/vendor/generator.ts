@@ -1,7 +1,13 @@
 import Handlebars from "handlebars";
-import type { ProjectConfig } from "../schemas";
+import type { ProjectConfig } from "./schemas";
 import { VirtualFileSystem } from "./core/virtual-fs";
 import { processCore } from "./handlers/core";
+import { processERPNext } from "./handlers/erpnext";
+import { processAuth } from "./handlers/auth";
+import { processCMS } from "./handlers/cms";
+import { processPostHog } from "./handlers/posthog";
+import { processPortal } from "./handlers/portal";
+import { processQuote } from "./handlers/quote";
 import { runPostProcessors } from "./post-process";
 
 export interface TemplateMap {
@@ -70,5 +76,11 @@ export function generateProject(
   config: ProjectConfig
 ): void {
   processCore(vfs, templates, config);
+  processERPNext(vfs, templates, config);
+  processAuth(vfs, templates, config);
+  processCMS(vfs, templates, config);
+  processPostHog(vfs, templates, config);
+  processPortal(vfs, templates, config);
+  processQuote(vfs, templates, config);
   runPostProcessors(vfs, config);
 }

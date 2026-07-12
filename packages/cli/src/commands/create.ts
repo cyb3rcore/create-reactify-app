@@ -1,16 +1,23 @@
 import { defineCommand, runMain } from "citty";
 import consola from "consola";
 import { existsSync } from "node:fs";
-import type { ProjectConfig, Runtime, PackageManager } from "../vendor/schemas";
+import type { ProjectConfig, ERP, Auth, CMS, PostHog, Portal, Quote, Runtime, PackageManager } from "../vendor/schemas";
 import { ProjectConfigSchema } from "../vendor/schemas";
 import { generateProject, VirtualFileSystem, registerTemplateHelpers } from "../vendor/index";
 import { fetchTemplates } from "../utils/template-fetcher";
 import { writeProject, getProjectDir } from "../utils/project-writer";
 import { installDependencies, initGitRepo } from "../utils/package-manager";
+import { fillMissingFlags } from "../prompts";
 
 export interface CreateOptions {
   projectName?: string;
   runtime?: Runtime;
+  erpnext?: ERP;
+  auth?: Auth;
+  cms?: CMS;
+  posthog?: PostHog;
+  portal?: Portal;
+  quote?: Quote;
   packageManager?: PackageManager;
   git?: boolean;
   noGit?: boolean;
@@ -33,6 +40,30 @@ const cliCommand = defineCommand({
     runtime: {
       type: "string",
       description: "Runtime (bun | node)",
+    },
+    erpnext: {
+      type: "string",
+      description: "ERPNext integration (erpnext | none)",
+    },
+    auth: {
+      type: "string",
+      description: "Authentication (auth | none)",
+    },
+    cms: {
+      type: "string",
+      description: "CMS section system (cms | none)",
+    },
+    posthog: {
+      type: "string",
+      description: "PostHog analytics (posthog | none)",
+    },
+    portal: {
+      type: "string",
+      description: "Customer portal (portal | none)",
+    },
+    quote: {
+      type: "string",
+      description: "Quote form (quote | none)",
     },
     "package-manager": {
       type: "string",
@@ -69,6 +100,12 @@ const cliCommand = defineCommand({
     const options: CreateOptions = {
       projectName: args.projectName,
       runtime: args.runtime as Runtime | undefined,
+      erpnext: args.erpnext as ERP | undefined,
+      auth: args.auth as Auth | undefined,
+      cms: args.cms as CMS | undefined,
+      posthog: args.posthog as PostHog | undefined,
+      portal: args.portal as Portal | undefined,
+      quote: args.quote as Quote | undefined,
       packageManager: args["package-manager"] as PackageManager | undefined,
       git: args["no-git"] ? false : args.git,
       install: args.install,
@@ -84,15 +121,17 @@ export async function createProject(options: CreateOptions): Promise<void> {
   registerTemplateHelpers();
   consola.info("create-reactify-app v0.1.0");
 
-  // Build config with hardcoded feature values (template-lamsa is a minimal SSR + RSC scaffold)
+  // Build partial config from CLI args
   let config: Partial<ProjectConfig> = {
     projectName: options.projectName,
-    template: "lamsa",
+    template: "salam",
     runtime: options.runtime,
-    api: "none",
-    auth: "none",
-    database: "none",
-    orm: "none",
+    erpnext: options.erpnext,
+    auth: options.auth,
+    cms: options.cms,
+    posthog: options.posthog,
+    portal: options.portal,
+    quote: options.quote,
     packageManager: options.packageManager,
     git: options.git,
     install: options.install,
@@ -100,13 +139,30 @@ export async function createProject(options: CreateOptions): Promise<void> {
     projectDir: "",
   };
 
+  // Fill missing flags with interactive prompts (unless --yes)
+  if (!options.yes) {
+    try {
+      config = await fillMissingFlags(config);
+    } catch (err) {
+      consola.error(err instanceof Error ? err.message : "Prompt failed");
+      process.exit(1);
+    }
+  }
+
   // Set defaults for any remaining missing fields
   config.projectName = config.projectName || "my-app";
   config.runtime = config.runtime || "bun";
+  config.erpnext = config.erpnext || "none";
+  config.auth = config.auth || "none";
+  config.cms = config.cms || "none";
+  config.posthog = config.posthog || "none";
+  config.portal = config.portal || "none";
+  config.quote = config.quote || "none";
   config.packageManager = config.packageManager || "bun";
   config.projectDir = config.projectDir || "";
   config.git = config.git !== undefined ? config.git : true;
   config.install = config.install ?? false;
+  config.addons = config.addons || [];
 
   // Validate
   const parsed = ProjectConfigSchema.safeParse(config);
