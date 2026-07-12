@@ -1,7 +1,7 @@
 import { defineCommand, runMain } from "citty";
 import consola from "consola";
-import { existsSync } from "node:fs";
-import type { ProjectConfig, Template, ERP, Auth, CMS, PostHog, Portal, Quote, Runtime, PackageManager } from "../vendor/schemas";
+import { existsSync, readFileSync } from "node:fs";
+import type { ProjectConfig, Template, Runtime, PackageManager } from "../vendor/schemas";
 import { ProjectConfigSchema } from "../vendor/schemas";
 import { generateProject, VirtualFileSystem, registerTemplateHelpers } from "../vendor/index";
 import { fetchTemplates } from "../utils/template-fetcher";
@@ -13,12 +13,12 @@ export interface CreateOptions {
   projectName?: string;
   template?: Template;
   runtime?: Runtime;
-  erpnext?: ERP;
-  auth?: Auth;
-  cms?: CMS;
-  posthog?: PostHog;
-  portal?: Portal;
-  quote?: Quote;
+  erpnext?: boolean;
+  auth?: boolean;
+  cms?: boolean;
+  posthog?: boolean;
+  portal?: boolean;
+  quote?: boolean;
   packageManager?: PackageManager;
   git?: boolean;
   noGit?: boolean;
@@ -48,28 +48,34 @@ const cliCommand = defineCommand({
       description: "Runtime (bun | node)",
     },
     erpnext: {
-      type: "string",
-      description: "ERPNext integration (erpnext | none)",
+      type: "boolean",
+      description: "Include ERPNext integration",
+      default: false,
     },
     auth: {
-      type: "string",
-      description: "Authentication (auth | none)",
+      type: "boolean",
+      description: "Include authentication",
+      default: false,
     },
     cms: {
-      type: "string",
-      description: "CMS section system (cms | none)",
+      type: "boolean",
+      description: "Include CMS section system",
+      default: false,
     },
     posthog: {
-      type: "string",
-      description: "PostHog analytics (posthog | none)",
+      type: "boolean",
+      description: "Include PostHog analytics",
+      default: false,
     },
     portal: {
-      type: "string",
-      description: "Customer portal (portal | none)",
+      type: "boolean",
+      description: "Include customer portal",
+      default: false,
     },
     quote: {
-      type: "string",
-      description: "Quote form (quote | none)",
+      type: "boolean",
+      description: "Include quote form",
+      default: false,
     },
     "package-manager": {
       type: "string",
@@ -107,12 +113,12 @@ const cliCommand = defineCommand({
       projectName: args.projectName,
       template: args.template as Template | undefined,
       runtime: args.runtime as Runtime | undefined,
-      erpnext: args.erpnext as ERP | undefined,
-      auth: args.auth as Auth | undefined,
-      cms: args.cms as CMS | undefined,
-      posthog: args.posthog as PostHog | undefined,
-      portal: args.portal as Portal | undefined,
-      quote: args.quote as Quote | undefined,
+      erpnext: args.erpnext,
+      auth: args.auth,
+      cms: args.cms,
+      posthog: args.posthog,
+      portal: args.portal,
+      quote: args.quote,
       packageManager: args["package-manager"] as PackageManager | undefined,
       git: args["no-git"] ? false : args.git,
       install: args.install,
@@ -126,19 +132,20 @@ const cliCommand = defineCommand({
 
 export async function createProject(options: CreateOptions): Promise<void> {
   registerTemplateHelpers();
-  consola.info("create-reactify-app v0.1.0");
+  const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf-8"))
+  consola.info(`create-reactify-app v${version}`);
 
   // Build partial config from CLI args
   let config: Partial<ProjectConfig> = {
     projectName: options.projectName,
     template: options.template || "salam",
     runtime: options.runtime,
-    erpnext: options.erpnext,
-    auth: options.auth,
-    cms: options.cms,
-    posthog: options.posthog,
-    portal: options.portal,
-    quote: options.quote,
+    erpnext: options.erpnext ? "erpnext" : "none",
+    auth: options.auth ? "auth" : "none",
+    cms: options.cms ? "cms" : "none",
+    posthog: options.posthog ? "posthog" : "none",
+    portal: options.portal ? "portal" : "none",
+    quote: options.quote ? "quote" : "none",
     packageManager: options.packageManager,
     git: options.git,
     install: options.install,
