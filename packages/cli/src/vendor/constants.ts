@@ -17,6 +17,7 @@ export const DEFAULT_CONFIG: ProjectConfig = {
   addons: [],
 };
 
+export const TEMPLATE_VALUES = ["salam", "lamsa"] as const;
 export const RUNTIME_VALUES = ["bun", "node"] as const;
 export const ERP_VALUES = ["erpnext", "none"] as const;
 export const AUTH_VALUES = ["auth", "none"] as const;

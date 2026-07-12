@@ -1,7 +1,7 @@
 import { defineCommand, runMain } from "citty";
 import consola from "consola";
 import { existsSync } from "node:fs";
-import type { ProjectConfig, ERP, Auth, CMS, PostHog, Portal, Quote, Runtime, PackageManager } from "../vendor/schemas";
+import type { ProjectConfig, Template, ERP, Auth, CMS, PostHog, Portal, Quote, Runtime, PackageManager } from "../vendor/schemas";
 import { ProjectConfigSchema } from "../vendor/schemas";
 import { generateProject, VirtualFileSystem, registerTemplateHelpers } from "../vendor/index";
 import { fetchTemplates } from "../utils/template-fetcher";
@@ -11,6 +11,7 @@ import { fillMissingFlags } from "../prompts";
 
 export interface CreateOptions {
   projectName?: string;
+  template?: Template;
   runtime?: Runtime;
   erpnext?: ERP;
   auth?: Auth;
@@ -36,6 +37,11 @@ const cliCommand = defineCommand({
       type: "positional",
       description: "Project name or directory",
       required: false,
+    },
+    template: {
+      type: "string",
+      description: "Template to use (salam | lamsa)",
+      default: "salam",
     },
     runtime: {
       type: "string",
@@ -99,6 +105,7 @@ const cliCommand = defineCommand({
   async run({ args }) {
     const options: CreateOptions = {
       projectName: args.projectName,
+      template: args.template as Template | undefined,
       runtime: args.runtime as Runtime | undefined,
       erpnext: args.erpnext as ERP | undefined,
       auth: args.auth as Auth | undefined,
@@ -124,7 +131,7 @@ export async function createProject(options: CreateOptions): Promise<void> {
   // Build partial config from CLI args
   let config: Partial<ProjectConfig> = {
     projectName: options.projectName,
-    template: "salam",
+    template: options.template || "salam",
     runtime: options.runtime,
     erpnext: options.erpnext,
     auth: options.auth,
@@ -198,7 +205,7 @@ export async function createProject(options: CreateOptions): Promise<void> {
 
   // Fetch templates from GitHub
   consola.info("Fetching templates...");
-  const templates = await fetchTemplates();
+  const templates = await fetchTemplates(finalConfig.template);
 
   // Generate project in VFS
   const vfs = new VirtualFileSystem();

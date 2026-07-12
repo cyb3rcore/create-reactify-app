@@ -4,13 +4,14 @@ import { join, relative } from "node:path";
 import { tmpdir } from "node:os";
 import { execSync } from "node:child_process";
 
-const DEFAULT_TEMPLATE_REPO = "git@github.com:cyb3rcore/template-salam.git";
 const MAX_RETRIES = 3;
 
 export async function fetchTemplates(
-  repoUrl?: string
+  template?: string
 ): Promise<TemplateMap> {
-  const url = repoUrl || DEFAULT_TEMPLATE_REPO;
+  const url = template === "lamsa"
+    ? "git@github.com:cyb3rcore/template-lamsa.git"
+    : "git@github.com:cyb3rcore/template-salam.git";
 
   let lastError: Error | null = null;
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
