@@ -9,3 +9,4 @@ dist/
 coverage/
 # Templates fetched from cyb3rcore/template-lamsa at runtime
 /templates/
+.npmrc
