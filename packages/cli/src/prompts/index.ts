@@ -170,7 +170,7 @@ export async function fillMissingFlags(
   return {
     projectName: (result.projectName as string) || config.projectName || "my-app",
     projectDir: "",
-    template: "salam",
+    template: config.template || "salam",
     runtime: (result.runtime as Runtime) || config.runtime || "bun",
     erpnext: (result.erpnext as ERP) || config.erpnext || "none",
     auth: (result.auth as Auth) || config.auth || "none",
