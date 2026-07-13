@@ -1,6 +1,6 @@
 {
   "name": "create-reactify-app",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Scaffold Reactify projects — Fastify + React + Vite SSR",
   "type": "module",
   "bin": {
