@@ -30,7 +30,7 @@ export async function fillMissingFlags(
     return {
       projectName: config.projectName || "my-app",
       projectDir: "",
-      template: "salam",
+      template: "lamsa",
       runtime: config.runtime as Runtime,
       erpnext: config.erpnext as ERP,
       auth: config.auth as Auth,
@@ -170,7 +170,7 @@ export async function fillMissingFlags(
   return {
     projectName: (result.projectName as string) || config.projectName || "my-app",
     projectDir: "",
-    template: config.template || "salam",
+    template: config.template || "lamsa",
     runtime: (result.runtime as Runtime) || config.runtime || "bun",
     erpnext: (result.erpnext as ERP) || config.erpnext || "none",
     auth: (result.auth as Auth) || config.auth || "none",
