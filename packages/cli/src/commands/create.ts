@@ -41,7 +41,7 @@ const cliCommand = defineCommand({
     template: {
       type: "string",
       description: "Template to use (salam | lamsa)",
-      default: "salam",
+      default: "lamsa",
     },
     runtime: {
       type: "string",
@@ -138,7 +138,7 @@ export async function createProject(options: CreateOptions): Promise<void> {
   // Build partial config from CLI args
   let config: Partial<ProjectConfig> = {
     projectName: options.projectName,
-    template: options.template || "salam",
+    template: options.template || "lamsa",
     runtime: options.runtime,
     erpnext: options.erpnext ? "erpnext" : "none",
     auth: options.auth ? "auth" : "none",
@@ -233,6 +233,11 @@ export async function createProject(options: CreateOptions): Promise<void> {
 
   consola.success(`Project "${finalConfig.projectName}" created!`);
   consola.info(`  cd ${finalConfig.projectName}`);
+  if (!finalConfig.install) {
+    const pm = finalConfig.packageManager;
+    const installCmd = pm === "bun" ? "bun i" : pm === "pnpm" ? "pnpm i" : "npm i";
+    consola.info(`  ${installCmd}`);
+  }
   consola.info(`  ${finalConfig.packageManager} run dev`);
 }
 
