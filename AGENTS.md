@@ -36,7 +36,7 @@ export function processFeature(vfs, templates, config) {
 
 Fetched from `template-salam:main` at scaffold time. The template repo uses a two-branch model — source on `dev`, `.hbs` files on `main`. Changes to templates must be pushed to template-salam `main` for the CLI to pick them up.
 
-**When working on any template-* project (`template-salam`, `template-amal`, `template-lamsa`, etc.), read that project's `AGENTS.md`** for the full workflow guidance. They all follow the same two-branch model with feature flag markers, FILE_MAP, and sync process — just different contents and styling. Read it even if opencode isn't running from that path.
+**When working on any template-* project (`template-salam`, `template-amal`, `template-lamsa`, etc.), read that project's `AGENTS.md`** for the full workflow guidance. They all follow the same two-branch model with feature flag markers, FILE_MAP, and sync process — just different contents and styling.
 
 ## Release
 
