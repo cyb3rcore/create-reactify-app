@@ -14,6 +14,7 @@ export function registerTemplateHelpers(): void {
   Handlebars.registerHelper('and', (...args: unknown[]) => args.slice(0, -1).every(Boolean))
   Handlebars.registerHelper('or', (...args: unknown[]) => args.slice(0, -1).some(Boolean))
   Handlebars.registerHelper('includes', (arr: unknown[], val: unknown) => Array.isArray(arr) && arr.includes(val))
+  Handlebars.registerHelper('not', (v: unknown) => !v)
   Handlebars.registerHelper('raw', function (options) { return options.fn() })
 }
 
