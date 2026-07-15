@@ -21,7 +21,8 @@
   "scripts": {
     "build": "tsdown --config build.config.ts",
     "dev": "tsdown --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "bun run build"
   },
   "dependencies": {
     "@clack/prompts": "^0.10.1",
