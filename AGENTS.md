@@ -5,19 +5,19 @@ CLI scaffolding tool. Consumes templates from `template-salam:main` via GitHub c
 ## Architecture
 
 ```
-commands/create.ts     ← commander.js CLI entry, infra-flag definitions, createProject() flow
-prompts/index.ts       ← @clack/prompts for infra-only missing flags (project name, runtime, pm)
-vendor/schemas.ts      ← Zod schemas for infra fields + generic features: Record<string, string|boolean>
-vendor/flag-parser.ts  ← parseFlags() extracts --flag / --flag value from argv into features record
-vendor/generator.ts    ← generateProject() discovers templates/features/<name>/ dirs and processes
-                          only those matching a truthy feature flag
+src/commands/create.ts     ← commander.js CLI entry, infra-flag definitions, createProject() flow
+src/prompts/index.ts       ← @clack/prompts for infra-only missing flags (project name, runtime, pm)
+src/vendor/schemas.ts      ← Zod schemas for infra fields + generic features: Record<string, string|boolean>
+src/vendor/flag-parser.ts  ← parseFlags() extracts --flag / --flag value from argv into features record
+src/vendor/generator.ts    ← generateProject() discovers templates/features/<name>/ dirs and processes
+                             only those matching a truthy feature flag
   └─ processTemplatesFromPrefix() → handles templates/<prefix>/*.hbs
   └─ shouldProcessFeature()      → naming-convention gating (see below)
   └─ discoverFeatureDirs()       → scans TemplateMap for templates/features/ paths
   └─ runPostProcessors()         → only changes pkg.name, writes .env, writes README
-vendor/__tests__/       ← vitest unit tests for flag-parser, schemas, generator
-vendor/core/virtual-fs.ts  ← in-memory VFS, writeProject() writes to disk
-utils/template-fetcher.ts  ← clones template-salam from GitHub
+src/vendor/__tests__/       ← vitest unit tests for flag-parser, schemas, generator
+src/vendor/core/virtual-fs.ts  ← in-memory VFS, writeProject() writes to disk
+src/utils/template-fetcher.ts  ← clones template-salam from GitHub
 ```
 
 ## CLI: Infrastructure vs Features
@@ -94,13 +94,11 @@ export { Heading, type HeadingProps } from './heading'
 ## Release
 
 ```bash
-cd packages/cli
 bun run build
 npm version patch --no-git-tag-version
 npm publish
-cd ../..
-git add packages/cli/package.json
-git commit -m "chore: bump to v$(node -p 'require(\"./packages/cli/package.json\").version')"
+git add package.json
+git commit -m "chore: bump to v$(node -p 'require(\"./package.json\").version')"
 git push origin main
 ```
 
@@ -110,7 +108,7 @@ git push origin main
 
 ```bash
 # Build CLI and scaffold a test app
-cd packages/cli && bun run build
+bun run build
 cd /tmp && rm -rf test-app && node dist/cli.mjs test-app --template salam --auth --cms erpnext --yes
 
 # Quick test
@@ -121,6 +119,5 @@ sleep 12 && curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/
 ## Testing
 
 ```bash
-cd packages/cli
-npx vitest run
+bun run test
 ```
