@@ -52,6 +52,7 @@ export async function createProject(options: CreateOptions): Promise<void> {
 
   // Set defaults for any remaining fields
   config.projectName = config.projectName || 'my-app'
+  config.projectDir = config.projectDir || ''
   config.runtime = config.runtime || 'bun'
   config.packageManager = config.packageManager || 'bun'
   config.git = config.git !== undefined ? config.git : true
@@ -132,6 +133,7 @@ export async function runCli(): Promise<void> {
     .option('--dry-run', 'Validate without writing')
     .option('--runtime <name>', 'Runtime (bun | node)')
     .allowUnknownOption()
+    .allowExcessArguments(true)
     .action(async (projectName, opts) => {
       await createProject({
         projectName,
