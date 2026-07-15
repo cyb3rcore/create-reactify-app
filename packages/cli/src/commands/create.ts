@@ -1,246 +1,149 @@
-import { defineCommand, runMain } from "citty";
-import consola from "consola";
-import { existsSync, readFileSync } from "node:fs";
-import type { ProjectConfig, Template, Runtime, PackageManager } from "../vendor/schemas";
-import { ProjectConfigSchema } from "../vendor/schemas";
-import { generateProject, VirtualFileSystem, registerTemplateHelpers } from "../vendor/index";
-import { fetchTemplates } from "../utils/template-fetcher";
-import { writeProject, getProjectDir } from "../utils/project-writer";
-import { installDependencies, initGitRepo } from "../utils/package-manager";
-import { fillMissingFlags } from "../prompts";
+import { Command } from 'commander'
+import consola from 'consola'
+import { existsSync, readFileSync } from 'node:fs'
+import type { ProjectConfig, Template, Runtime, PackageManager } from '../vendor/schemas'
+import { ProjectConfigSchema } from '../vendor/schemas'
+import { generateProject, VirtualFileSystem, registerTemplateHelpers } from '../vendor/index'
+import { fetchTemplates } from '../utils/template-fetcher'
+import { writeProject, getProjectDir } from '../utils/project-writer'
+import { installDependencies, initGitRepo } from '../utils/package-manager'
+import { fillMissingFlags } from '../prompts'
+import { parseFlags } from '../vendor/flag-parser'
 
 export interface CreateOptions {
-  projectName?: string;
-  template?: Template;
-  runtime?: Runtime;
-  erpnext?: boolean;
-  auth?: boolean;
-  cms?: boolean;
-  posthog?: boolean;
-  portal?: boolean;
-  quote?: boolean;
-  packageManager?: PackageManager;
-  git?: boolean;
-  noGit?: boolean;
-  install?: boolean;
-  yes?: boolean;
-  dryRun?: boolean;
+  projectName?: string
+  template?: string
+  runtime?: string
+  packageManager?: string
+  git?: boolean
+  install?: boolean
+  yes?: boolean
+  dryRun?: boolean
 }
 
-const cliCommand = defineCommand({
-  meta: {
-    name: "create-reactify-app",
-    description: "Scaffold a new Reactify project",
-  },
-  args: {
-    projectName: {
-      type: "positional",
-      description: "Project name or directory",
-      required: false,
-    },
-    template: {
-      type: "string",
-      description: "Template to use (salam | lamsa)",
-      default: "lamsa",
-    },
-    runtime: {
-      type: "string",
-      description: "Runtime (bun | node)",
-    },
-    erpnext: {
-      type: "boolean",
-      description: "Include ERPNext integration",
-      default: false,
-    },
-    auth: {
-      type: "boolean",
-      description: "Include authentication",
-      default: false,
-    },
-    cms: {
-      type: "boolean",
-      description: "Include CMS section system",
-      default: false,
-    },
-    posthog: {
-      type: "boolean",
-      description: "Include PostHog analytics",
-      default: false,
-    },
-    portal: {
-      type: "boolean",
-      description: "Include customer portal",
-      default: false,
-    },
-    quote: {
-      type: "boolean",
-      description: "Include quote form",
-      default: false,
-    },
-    "package-manager": {
-      type: "string",
-      description: "Package manager (npm | pnpm | bun)",
-    },
-    git: {
-      type: "boolean",
-      description: "Initialize git repository",
-      default: true,
-    },
-    "no-git": {
-      type: "boolean",
-      description: "Skip git initialization",
-      default: false,
-    },
-    install: {
-      type: "boolean",
-      description: "Install dependencies",
-      default: false,
-    },
-    yes: {
-      type: "boolean",
-      description: "Skip prompts, use defaults",
-      alias: "y",
-      default: false,
-    },
-    "dry-run": {
-      type: "boolean",
-      description: "Validate without writing",
-      default: false,
-    },
-  },
-  async run({ args }) {
-    const options: CreateOptions = {
-      projectName: args.projectName,
-      template: args.template as Template | undefined,
-      runtime: args.runtime as Runtime | undefined,
-      erpnext: args.erpnext,
-      auth: args.auth,
-      cms: args.cms,
-      posthog: args.posthog,
-      portal: args.portal,
-      quote: args.quote,
-      packageManager: args["package-manager"] as PackageManager | undefined,
-      git: args["no-git"] ? false : args.git,
-      install: args.install,
-      yes: args.yes,
-      dryRun: args["dry-run"],
-    };
-
-    await createProject(options);
-  },
-});
-
 export async function createProject(options: CreateOptions): Promise<void> {
-  registerTemplateHelpers();
-  const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf-8"))
-  consola.info(`create-reactify-app v${version}`);
+  registerTemplateHelpers()
+  const { version } = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf-8'))
+  consola.info(`create-reactify-app v${version}`)
 
   // Build partial config from CLI args
   let config: Partial<ProjectConfig> = {
     projectName: options.projectName,
-    template: options.template || "lamsa",
-    runtime: options.runtime,
-    erpnext: options.erpnext ? "erpnext" : "none",
-    auth: options.auth ? "auth" : "none",
-    cms: options.cms ? "cms" : "none",
-    posthog: options.posthog ? "posthog" : "none",
-    portal: options.portal ? "portal" : "none",
-    quote: options.quote ? "quote" : "none",
-    packageManager: options.packageManager,
-    git: options.git,
-    install: options.install,
-    addons: [],
-    projectDir: "",
-  };
+    template: (options.template as Template) || 'lamsa',
+    runtime: (options.runtime as Runtime) || 'bun',
+    packageManager: (options.packageManager as PackageManager) || 'bun',
+    git: options.git !== false,
+    install: options.install || false,
+    features: {},
+  }
+
+  // Extract feature flags from CLI — parse the raw argv
+  config.features = parseFlags(process.argv.slice(2))
 
   // Fill missing flags with interactive prompts (unless --yes)
   if (!options.yes) {
     try {
-      config = await fillMissingFlags(config);
+      config = await fillMissingFlags(config)
     } catch (err) {
-      consola.error(err instanceof Error ? err.message : "Prompt failed");
-      process.exit(1);
+      consola.error(err instanceof Error ? err.message : 'Prompt failed')
+      process.exit(1)
     }
   }
 
-  // Set defaults for any remaining missing fields
-  config.projectName = config.projectName || "my-app";
-  config.runtime = config.runtime || "bun";
-  config.erpnext = config.erpnext || "none";
-  config.auth = config.auth || "none";
-  config.cms = config.cms || "none";
-  config.posthog = config.posthog || "none";
-  config.portal = config.portal || "none";
-  config.quote = config.quote || "none";
-  config.packageManager = config.packageManager || "bun";
-  config.projectDir = config.projectDir || "";
-  config.git = config.git !== undefined ? config.git : true;
-  config.install = config.install ?? false;
-  config.addons = config.addons || [];
+  // Set defaults for any remaining fields
+  config.projectName = config.projectName || 'my-app'
+  config.runtime = config.runtime || 'bun'
+  config.packageManager = config.packageManager || 'bun'
+  config.git = config.git !== undefined ? config.git : true
+  config.install = config.install || false
+  config.features = config.features || {}
 
   // Validate
-  const parsed = ProjectConfigSchema.safeParse(config);
+  const parsed = ProjectConfigSchema.safeParse(config)
   if (!parsed.success) {
-    consola.error("Invalid configuration:");
+    consola.error('Invalid configuration:')
     for (const issue of parsed.error.issues) {
-      consola.error(`  ${issue.path.join(".")}: ${issue.message}`);
+      consola.error(`  ${issue.path.join('.')}: ${issue.message}`)
     }
-    process.exit(1);
+    process.exit(1)
   }
 
-  const finalConfig = parsed.data;
+  const finalConfig = parsed.data
 
-  // If projectName is an absolute path, use it as projectDir and extract name
-  if (finalConfig.projectName.startsWith("/")) {
-    finalConfig.projectDir = finalConfig.projectName;
-    finalConfig.projectName = finalConfig.projectName.split("/").pop() || "my-app";
+  // Handle project directory
+  if (finalConfig.projectName.startsWith('/')) {
+    finalConfig.projectDir = finalConfig.projectName
+    finalConfig.projectName = finalConfig.projectName.split('/').pop() || 'my-app'
   } else {
-    finalConfig.projectDir = getProjectDir(finalConfig.projectName);
+    finalConfig.projectDir = getProjectDir(finalConfig.projectName)
   }
 
-  // Check if target directory exists
   if (existsSync(finalConfig.projectDir)) {
-    consola.error(`Directory "${finalConfig.projectDir}" already exists.`);
-    process.exit(1);
+    consola.error(`Directory "${finalConfig.projectDir}" already exists.`)
+    process.exit(1)
   }
 
   if (options.dryRun) {
-    consola.info("Dry run — validation passed");
-    consola.info(JSON.stringify(finalConfig, null, 2));
-    return;
+    consola.info('Dry run — validation passed')
+    consola.info(JSON.stringify(finalConfig, null, 2))
+    return
   }
 
   // Fetch templates from GitHub
-  consola.info("Fetching templates...");
-  const templates = await fetchTemplates(finalConfig.template);
+  consola.info('Fetching templates...')
+  const templates = await fetchTemplates(finalConfig.template)
 
   // Generate project in VFS
-  const vfs = new VirtualFileSystem();
-  generateProject(vfs, templates, finalConfig);
+  const vfs = new VirtualFileSystem()
+  generateProject(vfs, templates, finalConfig)
 
   // Write to disk
-  await writeProject(vfs, finalConfig.projectDir);
+  await writeProject(vfs, finalConfig.projectDir)
 
   // Git init
   if (finalConfig.git !== false) {
-    initGitRepo(finalConfig.projectDir);
+    initGitRepo(finalConfig.projectDir)
   }
 
   // Install deps
   if (finalConfig.install) {
-    installDependencies(finalConfig.projectDir, finalConfig.packageManager);
+    installDependencies(finalConfig.projectDir, finalConfig.packageManager)
   }
 
-  consola.success(`Project "${finalConfig.projectName}" created!`);
-  consola.info(`  cd ${finalConfig.projectName}`);
+  consola.success(`Project "${finalConfig.projectName}" created!`)
+  consola.info(`  cd ${finalConfig.projectName}`)
   if (!finalConfig.install) {
-    const pm = finalConfig.packageManager;
-    const installCmd = pm === "bun" ? "bun i" : pm === "pnpm" ? "pnpm i" : "npm i";
-    consola.info(`  ${installCmd}`);
+    const pm = finalConfig.packageManager
+    const installCmd = pm === 'bun' ? 'bun i' : pm === 'pnpm' ? 'pnpm i' : 'npm i'
+    consola.info(`  ${installCmd}`)
   }
-  consola.info(`  ${finalConfig.packageManager} run dev`);
+  consola.info(`  ${finalConfig.packageManager} run dev`)
 }
 
 export async function runCli(): Promise<void> {
-  await runMain(cliCommand);
+  const program = new Command()
+    .name('create-reactify-app')
+    .argument('[projectName]', 'Project name or directory')
+    .option('--template <name>', 'Template to use (salam | lamsa)')
+    .option('-y, --yes', 'Skip prompts, use defaults')
+    .option('--package-manager <name>', 'Package manager (npm | pnpm | bun)')
+    .option('--no-git', 'Skip git initialization')
+    .option('--install', 'Install dependencies')
+    .option('--dry-run', 'Validate without writing')
+    .option('--runtime <name>', 'Runtime (bun | node)')
+    .allowUnknownOption()
+    .action(async (projectName, opts) => {
+      await createProject({
+        projectName,
+        template: opts.template as string | undefined,
+        yes: !!opts.yes,
+        packageManager: opts.packageManager as string | undefined,
+        git: opts.git as boolean | undefined,
+        install: !!opts.install,
+        dryRun: !!opts.dryRun,
+        runtime: opts.runtime as string | undefined,
+      })
+    })
+
+  await program.parseAsync(process.argv)
 }
