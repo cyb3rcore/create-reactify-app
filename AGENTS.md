@@ -5,37 +5,58 @@ CLI scaffolding tool. Consumes templates from `template-salam:main` via GitHub c
 ## Architecture
 
 ```
-commands/create.ts     ← citty CLI entry, flag definitions, createProject() flow
-prompts/index.ts       ← @clack/prompts for missing flags
-vendor/schemas.ts      ← Zod schemas for all flags + cross-flag validation
-vendor/handlers/*.ts   ← 6 feature handlers (auth, cms, erpnext, posthog, portal, quote)
-vendor/generator.ts    ← generateProject() calls handlers in sequence
-  └─ processCore()    → handles templates/core/*.hbs (always included)
-  └─ feature handlers → handles templates/features/<name>/*.hbs
-  └─ runPostProcessors() → only changes pkg.name, writes .env, writes README
+commands/create.ts     ← commander.js CLI entry, infra-flag definitions, createProject() flow
+prompts/index.ts       ← @clack/prompts for infra-only missing flags (project name, runtime, pm)
+vendor/schemas.ts      ← Zod schemas for infra fields + generic features: Record<string, string|boolean>
+vendor/flag-parser.ts  ← parseFlags() extracts --flag / --flag value from argv into features record
+vendor/generator.ts    ← generateProject() discovers templates/features/<name>/ dirs and processes
+                          only those matching a truthy feature flag
+  └─ processTemplatesFromPrefix() → handles templates/<prefix>/*.hbs
+  └─ shouldProcessFeature()      → naming-convention gating (see below)
+  └─ discoverFeatureDirs()       → scans TemplateMap for templates/features/ paths
+  └─ runPostProcessors()         → only changes pkg.name, writes .env, writes README
+vendor/__tests__/       ← vitest unit tests for flag-parser, schemas, generator
 vendor/core/virtual-fs.ts  ← in-memory VFS, writeProject() writes to disk
 utils/template-fetcher.ts  ← clones template-salam from GitHub
 ```
 
-**Dependencies flow**: The generated app's `package.json` comes from `templates/core/package.json.hbs`, which is auto-generated from template-salam's root `package.json` by `scripts/generate-templates.ts`. Adding a dependency to template-salam's own `package.json` and regenerating templates makes it flow to all generated apps automatically. The CLI has **no programmatic dependency injection** — all deps are handled through templates.
+## CLI: Infrastructure vs Features
 
-## Feature handlers
+Two knowledge domains:
 
-All follow the same pattern:
+1. **Infrastructure** — declared in commander.js: `projectName`, `--template`, `--yes`, `--package-manager`, `--git`/`--no-git`, `--install`, `--dry-run`, `--runtime`. Only these have typed options and interactive prompts.
 
-```ts
-export function processFeature(vfs, templates, config) {
-  if (config.feature === "none") return;
-  processTemplatesFromPrefix(vfs, templates, "templates/features/feature", "", config);
-}
-```
+2. **Features** — never declared in the CLI. Any `--flag` or `--flag value` not in the infra set is collected by `parseFlags()` into a `features` record and passed to the Handlebars template context. The template repo decides what to do with them.
+
+The CLI is stack-agnostic. A user discovers features by reading the template source's `// @if` markers.
+
+## Feature directory naming convention
+
+The generator processes `templates/features/<name>/` directories based on the features record:
+
+| Directory         | Processed when                    |
+|-------------------|-----------------------------------|
+| `auth`            | `features.auth` truthy            |
+| `cms-shared`      | `features.cms` truthy             |
+| `cms-erpnext`     | `features.cms === "erpnext"`      |
+| `cms-sveltia`     | `features.cms === "sveltia"`      |
+| `erpnext`         | `features.erpnext` truthy         |
+| `multi-company`   | `features.multiCompany` truthy    |
+| `quote`           | `features.quote` truthy           |
+
+Pattern: `<name>-<shared>` for value-agnostic shared infrastructure, `<name>-<value>` for value-specific variants.
 
 ## Adding a feature flag
 
-1. Add Zod enum in `vendor/schemas.ts`
-2. Add citty flag in `commands/create.ts`
-3. Create handler in `vendor/handlers/` following the pattern above
-4. Call it from `vendor/generator.ts` in generateProject()
+1. Add `// @if feature_name` markers in the template source (`template-salam` dev branch)
+2. The CLI picks it up automatically — no code changes needed
+
+The template's `generate-templates.ts` converts markers to Handlebars:
+- `// @if auth` → `{{#if auth}}`
+- `// @if !auth` → `{{#unless auth}}`
+- `// @if cms::sveltia` → `{{#if (eq cms "sveltia")}}`
+
+Test with: `node dist/cli.mjs my-app --feature-name --template salam --yes`
 
 ## Templates
 
@@ -90,9 +111,16 @@ git push origin main
 ```bash
 # Build CLI and scaffold a test app
 cd packages/cli && bun run build
-cd /tmp && rm -rf test-app && node dist/cli.mjs test-app --template salam --auth --cms --yes
+cd /tmp && rm -rf test-app && node dist/cli.mjs test-app --template salam --auth --cms erpnext --yes
 
 # Quick test
 cd /tmp/test-app && bun i && bun run dev &
 sleep 12 && curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/
+```
+
+## Testing
+
+```bash
+cd packages/cli
+npx vitest run
 ```
