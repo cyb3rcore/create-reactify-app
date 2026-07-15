@@ -3,7 +3,7 @@
   "scripts": {
     "dev": "bun run --filter create-reactify-app dev",
     "build": "bun run --cwd packages/cli build",
-    "test": "bun run --cwd packages/cli test",
+    "test": "vitest run packages/cli/src/vendor/__tests__/",
     "link": "bun run build && cd packages/cli && bun link",
     "typecheck": "tsc --noEmit",
     "release": "bun run build && changeset publish"
