@@ -19,7 +19,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsdown --config build.config.ts",
+    "build": "node_modules/.bin/tsdown --config build.config.ts",
     "dev": "tsdown --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
