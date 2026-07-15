@@ -2,8 +2,8 @@
   "name": "create-reactify-app-monorepo",
   "scripts": {
     "dev": "bun run --filter create-reactify-app dev",
-    "build": "cd packages/cli && bun run build",
-    "test": "cd packages/cli && bun run test",
+    "build": "bun run --cwd packages/cli build",
+    "test": "bun run --cwd packages/cli test",
     "link": "bun run build && cd packages/cli && bun link",
     "typecheck": "tsc --noEmit",
     "release": "bun run build && changeset publish"

@@ -13,8 +13,6 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - name: Build
-        working-directory: packages/cli
-        run: bun run build
+        run: bun run --cwd packages/cli build
       - name: Test
-        working-directory: packages/cli
-        run: bun run test
+        run: bun run --cwd packages/cli test
