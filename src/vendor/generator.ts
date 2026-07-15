@@ -33,7 +33,7 @@ export function processTemplatesFromPrefix(
     let rendered: string
     try {
       const template = Handlebars.compile(rawContent)
-      rendered = template(config)
+      rendered = template({ ...config, ...config.features })
     } catch (err) {
       throw new Error(`Failed to render template "${templatePath}": ${(err as Error).message}`)
     }
