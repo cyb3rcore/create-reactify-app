@@ -9,9 +9,8 @@ const MAX_RETRIES = 3;
 export async function fetchTemplates(
   template?: string
 ): Promise<TemplateMap> {
-  const url = template === "lamsa"
-    ? "git@github.com:cyb3rcore/template-lamsa.git"
-    : "git@github.com:cyb3rcore/template-salam.git";
+  const name = template || "lamsa";
+  const url = `git@github.com:cyb3rcore/template-${name}.git`;
 
   let lastError: Error | null = null;
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
