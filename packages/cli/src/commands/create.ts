@@ -125,7 +125,7 @@ export async function runCli(): Promise<void> {
   const program = new Command()
     .name('create-reactify-app')
     .argument('[projectName]', 'Project name or directory')
-    .option('--template <name>', 'Template to use (salam | lamsa)')
+    .option('--template <name>', 'Template to use (default: lamsa)')
     .option('-y, --yes', 'Skip prompts, use defaults')
     .option('--package-manager <name>', 'Package manager (npm | pnpm | bun)')
     .option('--no-git', 'Skip git initialization')

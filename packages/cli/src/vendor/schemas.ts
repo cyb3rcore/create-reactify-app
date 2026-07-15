@@ -4,7 +4,7 @@ export const ProjectNameSchema = z.string().min(1).max(255);
 
 export const RuntimeSchema = z.enum(["bun", "node"] as const);
 
-export const TemplateSchema = z.enum(["salam", "lamsa"] as const);
+export const TemplateSchema = z.string().min(1);
 
 export const PackageManagerSchema = z.enum(["npm", "pnpm", "bun"] as const);
 
