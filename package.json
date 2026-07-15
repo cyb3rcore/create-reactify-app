@@ -2,10 +2,10 @@
   "name": "create-reactify-app-monorepo",
   "scripts": {
     "dev": "bun run --filter create-reactify-app dev",
-    "build": "bun run --filter create-reactify-app build",
+    "build": "cd packages/cli && bun run build",
+    "test": "cd packages/cli && bun run test",
     "link": "bun run build && cd packages/cli && bun link",
     "typecheck": "tsc --noEmit",
-    "test": "bun run --filter create-reactify-app test",
     "release": "bun run build && changeset publish"
   },
   "devDependencies": {
