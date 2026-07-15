@@ -22,6 +22,7 @@
     "build": "tsdown --config build.config.ts",
     "dev": "tsdown --watch",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "prepublishOnly": "bun run build"
   },
   "dependencies": {
